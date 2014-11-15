@@ -1,0 +1,3 @@
+[submodule "libs/the_silver_searcher"]
+	path = libs/the_silver_searcher
+	url = git@github.com:ggreer/the_silver_searcher.git
