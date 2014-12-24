@@ -1,7 +1,8 @@
 CMakeCache.txt
-CMakeFiles
+CMakeFiles/
 Makefile
 cmake_install.cmake
 install_manifest.txt
 bin/
 .ycm_extra_conf.pyc
+libs
