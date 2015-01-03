@@ -6,3 +6,6 @@ install_manifest.txt
 bin/
 .ycm_extra_conf.pyc
 libs
+CMakeLists.txt.user
+MPISEACHER.cbp
+*.swp
