@@ -1,3 +1,6 @@
 [submodule "modules/the_silver_searcher"]
 	path = modules/the_silver_searcher
 	url = git@github.com:Moddus/the_silver_searcher.git
+[submodule "modules/pcre"]
+	path = modules/pcre
+	url = https://gitorious.org/pcre/pcre.git

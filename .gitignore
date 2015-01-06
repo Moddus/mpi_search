@@ -9,3 +9,4 @@ libs
 CMakeLists.txt.user
 MPISEACHER.cbp
 *.swp
+*.autosave

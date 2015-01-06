@@ -5,4 +5,5 @@ ADD_EXECUTABLE( mpi_searcher
                 file_searcher.c )
 
 TARGET_LINK_LIBRARIES( mpi_searcher
-                       searcher )
+                       searcher
+                       pcre )

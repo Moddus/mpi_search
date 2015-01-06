@@ -10,7 +10,7 @@ ps_file_searcher_create( ps_file_seacher_t** searcher,
                         unsigned int seek_to,
                         FILE* file )
 {
-    *searcher = ag_malloc(ps_file_seacher_t);
+    *searcher = ag_malloc(sizeof(ps_file_seacher_t));
     (*searcher)->seek_to = seek_to;
     (*searcher)->found = -1;
     (*searcher)->file = file;
@@ -24,7 +24,7 @@ ps_file_searcher_free( ps_file_seacher_t* searcher )
 }
 
 void
-ps_file_searcher_search(ps_seacher_t* seacher)
+ps_file_searcher_search(ps_file_seacher_t* seacher)
 {
     // TODO silver searcher
 }
