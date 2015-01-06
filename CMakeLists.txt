@@ -4,7 +4,6 @@ PROJECT( MPISEACHER )
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/libs)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
-INCLUDE_DIRECTORIES( modules/the_silver_searcher/src )
 INCLUDE_DIRECTORIES( modules/pcre )
 
 add_subdirectory( src )
