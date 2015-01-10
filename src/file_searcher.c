@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <search.h>
+#include <stdlib.h>
 
 #include "file_searcher.h"
-#include "ps.h"
+#include "util.h"
 
 void
 ps_file_searcher_create( ps_file_seacher_t** searcher,
@@ -18,8 +19,8 @@ ps_file_searcher_create( ps_file_seacher_t** searcher,
 void
 ps_file_searcher_free( ps_file_seacher_t* searcher )
 {
-   free(searcher->file);
-   free(searcher);
+   //free(searcher->file);
+   //free(searcher);
 }
 
 void

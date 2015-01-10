@@ -1,1 +1,2 @@
 ADD_SUBDIRECTORY( pcre )
+ADD_SUBDIRECTORY( cutest-1.5 )

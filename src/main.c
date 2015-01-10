@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
+
+#include "util.h"
+#include "log.h"
 
 int
 main(int argc, char *argv[])
@@ -10,7 +14,9 @@ main(int argc, char *argv[])
     char *search = NULL;
     int index;
     int c;
-    
+    ps_status_t rv = PS_SUCCESS;
+    out_fd = stdout;
+
     opterr = 0;
     while ((c = getopt (argc, argv, "hds:")) != -1)
     {
@@ -39,7 +45,22 @@ main(int argc, char *argv[])
     debug, search);
 
     for (index = optind; index < argc; index++)
-        printf ("Non-option argument %s\n", argv[index]); 
+        printf ("Non-option argument %s\n", argv[index]);
+
+    char* test = NULL;
+    PS_MALLOC(test, sizeof(char) * 10);
+
+    printf("len: %lu\n", sizeof(test));
+
+    test[15] = 'a';
+    printf("%s \n", test);
+    free(test);
 
     return EXIT_SUCCESS;
+
+error:
+    printf("sdfsdf Error code %d.", rv);
+    free(test);
+
+    return rv;
 }
