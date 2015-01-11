@@ -30,7 +30,7 @@ main(int argc, char *argv[])
 
     if (own_rank == MASTER)
     {
-        long total_filesize = -1, search_range_size = -1;
+        unsigned long total_filesize = -1, search_range_size = -1;
 
         opterr = 0;
         while ((c = getopt (argc, argv, "hds:f:")) != -1)
@@ -71,17 +71,37 @@ main(int argc, char *argv[])
         /*-------------------Processing of arguments done!-----------*/
 
         PS_CHECK_GOTO_ERROR(get_filesize(filename, &total_filesize));
+
+        search_range_size = total_filesize / number_of_procs;
+        log_debug("Search_range_size : %lu\n", search_range_size);
+
+        /*Distribution of the search ranges. The master process takes the first */
+        PS_MALLOC(task, sizeof(char) * strlen(filename) + sizeof(search_task_t));
+        task->start = 0;
+        task->end = search_range_size - 1;
+        task->filename_size = strlen(filename);
+        PS_COMPARE_GOTO_ERROR(
+                strlcpy(task->filename, filename, task->filename_size + 1), /*+1 for \n*/
+                task->filename_size,
+                PS_COPY_ERROR);
+       /*TODO: Tell the slaves in which ranges and which files to search */ 
+    }
+    else
+    {
+        /*Retrieve the tasks on the slaves*/
     }
 
     log_debug("Process %d finished\n", own_rank);
     MPI_Finalize();
 
+    PS_FREE(task);
     return EXIT_SUCCESS;
     /*-----------------ERROR-Handling------------------------------*/
 error:
 
     MPI_Finalize();
     PS_CLOSE_FILE(searchfile); 
+    PS_FREE(task);
     return rv;
 }
 

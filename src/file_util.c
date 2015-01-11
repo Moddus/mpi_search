@@ -7,7 +7,7 @@
 #include "log.h"
 
 int
-get_filesize(char *filename, long *filesize)
+get_filesize(char *filename, unsigned long *filesize)
 {
     ps_status_t rv = PS_SUCCESS; 
     FILE *searchfile = NULL;

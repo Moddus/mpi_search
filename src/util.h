@@ -21,6 +21,7 @@ typedef int ps_status_t;
 #define PS_ALLOCATION_ERROR ( 1 )
 #define PS_WRONG_ARGUMENTS  ( 2 )
 #define PS_FAILED_TO_OPEN_FILE ( 3 )
+#define PS_COPY_ERROR ( 4 )
 
 /*
  * Error handling
@@ -65,10 +66,10 @@ typedef int ps_status_t;
 }
 
 #define PS_FREE(PTR){                       \
-    if(ptr)                                 \
+    if(PTR)                                 \
     {                                       \
-        free(ptr);                          \
-        ptr = NULL;                         \
+        free(PTR);                          \
+        PTR = NULL;                         \
     }                                       \
 }
 
@@ -80,6 +81,14 @@ typedef int ps_status_t;
     }                                       \
 }
 
+#define PS_COMPARE_GOTO(VAL1, VAL2, RV, GO){    \
+    if(VAL1 != VAL2){                               \
+        rv = RV;                                    \
+        goto GO;                                    \
+    }                                               \
+}
+
+#define PS_COMPARE_GOTO_ERROR(VAL1, VAL2, RV) PS_COMPARE_GOTO(VAL1, VAL2, RV, error)
 
 /*
  * Logging

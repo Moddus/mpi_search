@@ -3,6 +3,6 @@
 
 /* Calc the total size of a give file */
 int
-get_filesize(char *filename, long *filesize);
+get_filesize(char *filename, unsigned long *filesize);
 
 #endif
