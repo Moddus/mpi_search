@@ -10,7 +10,7 @@ typedef struct ps_regex_t
     pcre* regex_compiled;
     pcre_extra* pcre_extra;
     const char* error;
-    int* error_offset;
+    int error_offset;
     unsigned int found;
 } ps_regex_t;
 

@@ -12,7 +12,7 @@ ps_regex_create(ps_regex_t** re, char* regex)
     PS_MALLOC(*re, sizeof(ps_regex_t));
     (*re)->regex = regex;
     (*re)->error_offset = 0;
-    (*re)->regex_compiled = pcre_compile((*re)->regex, 0, &(*re)->error, (*re)->error_offset, NULL);
+    (*re)->regex_compiled = pcre_compile((*re)->regex, 0, &(*re)->error, &(*re)->error_offset, NULL);
     (*re)->found = FALSE;
 
     return rv;
