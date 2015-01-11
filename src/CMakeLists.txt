@@ -1,20 +1,31 @@
-#TARGET_LINK_LIBRARIES( searcher )
+FIND_PACKAGE(MPI REQUIRED)
 
-find_package(MPI REQUIRED)
+INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 
-include_directories(${MPI_INCLUDE_PATH})
+SET(source file_searcher.c
+           regexw.c
+           util.c
+           log.c
+           mpi_functions.c
+           file_util.c )
 
-ADD_EXECUTABLE( mpi_searcher 
-    main.c
-    file_searcher.c
-    regexw.c
-    util.c
-    log.c
-    file_util.c)
+ADD_EXECUTABLE( mpi_searcher
+                main.c
+                ${source} )
 
-TARGET_LINK_LIBRARIES( mpi_searcher pcre )
+TARGET_LINK_LIBRARIES( mpi_searcher
+                       pcre )
 
-target_link_libraries(mpi_searcher ${MPI_LIBRARIES})
+ADD_LIBRARY( mpi_searcher_lib STATIC
+             ${source} )
+
+TARGET_LINK_LIBRARIES( mpi_searcher_lib
+                       pcre
+                       ${MPI_LIBRARIES} )
+
+TARGET_LINK_LIBRARIES( mpi_searcher
+                       pcre
+                       ${MPI_LIBRARIES} )
 
 IF(MPI_COMPILE_FLAGS)
     SET_TARGET_PROPERTIES(mpi_searcher PROPERTIES
@@ -25,4 +36,3 @@ IF(MPI_LINK_FLAGS)
     SET_TARGET_PROPERTIES(mpi_searcher PROPERTIES
         LINK_FLAGS "${MPI_LINK_FLAGS}")
 ENDIF()
-
