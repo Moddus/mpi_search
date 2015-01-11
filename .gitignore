@@ -1,12 +1,32 @@
+#
+# cmake
+#
+
 CMakeCache.txt
 CMakeFiles/
 Makefile
-cmake_install.cmake
+*.cmake
 install_manifest.txt
-bin/
-.ycm_extra_conf.pyc
-libs
 CMakeLists.txt.user
+
+#
+# Editors
+#
+
 MPISEACHER.cbp
 *.swp
 *.autosave
+.ycm_extra_conf.pyc
+
+#
+# Project
+#
+
+bin/
+libs/
+
+#
+# Tests
+#
+
+Testing/

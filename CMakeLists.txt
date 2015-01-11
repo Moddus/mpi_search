@@ -8,3 +8,8 @@ INCLUDE_DIRECTORIES( modules/pcre )
 
 add_subdirectory( src )
 add_subdirectory( modules )
+add_subdirectory( test )
+
+# run tests with: make test
+enable_testing()
+add_test(mpi_seacher_test mpi_searcher_test)

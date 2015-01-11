@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+   <FileVersion major="1" minor="6" />
+   <Project>
+      <Option title="MPISEACHER_TEST" />
+      <Option makefile_is_custom="1" />
+      <Option compiler="gcc" />
+      <Option virtualFolders="CMake Files\;CMake Files\src\;CMake Files\modules\;CMake Files\modules\pcre\;CMake Files\modules\pcre\cmake\;CMake Files\test\;" />
+      <Build>
+      <Target title="all">
+         <Option working_dir="/Users/Moddus/programmieren/src/git/fh/mpi_search/test" />
+         <Option type="4" />
+         <MakeCommands>
+            <Build command="/usr/bin/make -f &quot;/Users/Moddus/programmieren/src/git/fh/mpi_search/test/Makefile&quot;  VERBOSE=1 all" />
+            <CompileFile command="/usr/bin/make -f &quot;/Users/Moddus/programmieren/src/git/fh/mpi_search/test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/Users/Moddus/programmieren/src/git/fh/mpi_search/test/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/Users/Moddus/programmieren/src/git/fh/mpi_search/test/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      </Build>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/CMakeLists.txt">
+          <Option virtualFolder="CMake Files\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/src/CMakeLists.txt">
+          <Option virtualFolder="CMake Files\src\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/modules/CMakeLists.txt">
+          <Option virtualFolder="CMake Files\modules\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/modules/pcre/CMakeLists.txt">
+          <Option virtualFolder="CMake Files\modules\pcre\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/modules/pcre/config-cmake.h.in">
+          <Option virtualFolder="CMake Files\modules\pcre\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/modules/pcre/pcre.h.in">
+          <Option virtualFolder="CMake Files\modules\pcre\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/modules/pcre/pcre_stringpiece.h.in">
+          <Option virtualFolder="CMake Files\modules\pcre\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/modules/pcre/pcrecpparg.h.in">
+          <Option virtualFolder="CMake Files\modules\pcre\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/modules/pcre/pcre_chartables.c.dist">
+          <Option virtualFolder="CMake Files\modules\pcre\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/modules/pcre/CMakeLists.txt">
+          <Option virtualFolder="CMake Files\modules\pcre\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/modules/pcre/config-cmake.h.in">
+          <Option virtualFolder="CMake Files\modules\pcre\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/modules/pcre/pcre.h.in">
+          <Option virtualFolder="CMake Files\modules\pcre\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/modules/pcre/pcre_stringpiece.h.in">
+          <Option virtualFolder="CMake Files\modules\pcre\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/modules/pcre/pcrecpparg.h.in">
+          <Option virtualFolder="CMake Files\modules\pcre\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/modules/pcre/pcre_chartables.c.dist">
+          <Option virtualFolder="CMake Files\modules\pcre\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/modules/pcre/cmake/FindReadline.cmake">
+          <Option virtualFolder="CMake Files\modules\pcre\cmake\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/modules/pcre/cmake/FindPackageHandleStandardArgs.cmake">
+          <Option virtualFolder="CMake Files\modules\pcre\cmake\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/modules/pcre/cmake/FindEditline.cmake">
+          <Option virtualFolder="CMake Files\modules\pcre\cmake\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/modules/pcre/cmake/FindPackageHandleStandardArgs.cmake">
+          <Option virtualFolder="CMake Files\modules\pcre\cmake\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/modules/pcre/cmake/FindReadline.cmake">
+          <Option virtualFolder="CMake Files\modules\pcre\cmake\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/modules/pcre/cmake/FindPackageHandleStandardArgs.cmake">
+          <Option virtualFolder="CMake Files\modules\pcre\cmake\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/modules/pcre/cmake/FindEditline.cmake">
+          <Option virtualFolder="CMake Files\modules\pcre\cmake\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/modules/pcre/cmake/FindPackageHandleStandardArgs.cmake">
+          <Option virtualFolder="CMake Files\modules\pcre\cmake\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/test/CMakeLists.txt">
+          <Option virtualFolder="CMake Files\test\" />
+      </Unit>
+      <Unit filename="/Users/Moddus/programmieren/src/git/fh/mpi_search/test/CMakeLists.txt">
+          <Option virtualFolder="CMake Files\test\" />
+      </Unit>
+   </Project>
+</CodeBlocks_project_file>
