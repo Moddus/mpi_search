@@ -4,13 +4,17 @@
 
 #include "util.h"
 
+#define MAX_REGEX_RESULT_OFFSET ( 50 )
+
 typedef struct ps_regex_t
 {
     char* regex;
     pcre* regex_compiled;
     pcre_extra* pcre_extra;
+    int result_offset[MAX_REGEX_RESULT_OFFSET];
     const char* error;
     int error_offset;
+    int error_code;
     unsigned int found;
 } ps_regex_t;
 
@@ -22,6 +26,14 @@ ps_status_t
 ps_regex_create(ps_regex_t** re, char* regex);
 
 ps_status_t
-ps_regex_find(ps_regex_t* re);
+ps_regex_find(ps_regex_t* re,
+              const char* content,
+              unsigned int content_offset);
+
+ps_status_t
+ps_regex_free(ps_regex_t* re);
+
+char*
+ps_regex_error_code_to_str(ps_regex_t* re);
 
 #endif

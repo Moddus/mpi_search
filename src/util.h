@@ -17,11 +17,17 @@ typedef int ps_status_t;
  * Error codes
  */
 
-#define PS_SUCCESS          ( 0 )
-#define PS_ALLOCATION_ERROR ( 1 )
-#define PS_WRONG_ARGUMENTS  ( 2 )
-#define PS_FAILED_TO_OPEN_FILE ( 3 )
-#define PS_COPY_ERROR ( 4 )
+#define PS_SUCCESS          ( 101 )
+#define PS_ERROR_COPY       ( 102 )
+#define PS_ERROR_ALLOCATION ( 103 )
+#define PS_ERROR_WRONG_ARGUMENTS  ( 104 )
+#define PS_ERROR_OBJ_CREATE ( 105 )
+
+// I/O
+#define PS_ERROR_FAILED_TO_OPEN_FILE ( 201 )
+
+// Regex
+#define PS_ERROR_REGEX_FOUND_IS_FALSE ( 301 )
 
 /*
  * Error handling
@@ -43,7 +49,7 @@ typedef int ps_status_t;
 
 #define PS_CHECK_PTR_AND_GOTO(ptr, rv)      \
     if (ptr == NULL) {                    \
-        rv = PS_ALLOCATION_ERROR;         \
+        rv = PS_ERROR_ALLOCATION;         \
         goto error;                       \
     }
 

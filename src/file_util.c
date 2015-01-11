@@ -13,7 +13,7 @@ get_filesize(char *filename, unsigned long *filesize)
     FILE *searchfile = NULL;
 
     /*----Calc the total filesize of the file, that should be analyzed---*/
-    PS_CHECK_PTR_NULL((searchfile = fopen(filename, "r")), PS_FAILED_TO_OPEN_FILE);
+    PS_CHECK_PTR_NULL((searchfile = fopen(filename, "r")), PS_ERROR_FAILED_TO_OPEN_FILE);
     PS_CHECK_GOTO_ERROR(fseek(searchfile, 0L, SEEK_END));
     PS_CHECK_NEG_RET_AND_GOTO_ERROR((*filesize = ftell(searchfile)));
     log_debug("Total filesize: %lu", *filesize);

@@ -56,7 +56,7 @@ main(int argc, char *argv[])
                     fprintf (stderr,
                              "Unknown option character `\\x%x'.\n", optopt);
 
-                rv = PS_WRONG_ARGUMENTS;
+                rv = PS_ERROR_WRONG_ARGUMENTS;
                 goto error;
             }
         }
