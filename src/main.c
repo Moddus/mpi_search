@@ -9,6 +9,7 @@
 #include "util.h"
 #include "log.h"
 #include "mpi_functions.h"
+#include "file_util.h"
 
 int
 main(int argc, char *argv[])
@@ -69,12 +70,7 @@ main(int argc, char *argv[])
         }
         /*-------------------Processing of arguments done!-----------*/
 
-        /*----Calc the total filesize of the file, that should be analyzed---*/
-        PS_CHECK_PTR_NULL((searchfile = fopen(filename, "r")), PS_FAILED_TO_OPEN_FILE);
-        PS_CHECK_GOTO_ERROR(fseek(searchfile, 0L, SEEK_END)); 
-        PS_CHECK_NEG_RET_AND_GOTO_ERROR((total_filesize = ftell(searchfile)));
-        log_debug("Total filesize: %lu", total_filesize);
-        PS_CLOSE_FILE(searchfile);
+        PS_CHECK_GOTO_ERROR(get_filesize(filename, &total_filesize));
     }
 
     log_debug("Process %d finished\n", own_rank);

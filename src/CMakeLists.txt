@@ -9,7 +9,8 @@ ADD_EXECUTABLE( mpi_searcher
     file_searcher.c
     regexw.c
     util.c
-    log.c )
+    log.c
+    file_util.c)
 
 TARGET_LINK_LIBRARIES( mpi_searcher pcre )
 
