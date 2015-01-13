@@ -7,6 +7,7 @@ INCLUDE_DIRECTORIES( ../modules/cutest-1.5
 ADD_EXECUTABLE( mpi_searcher_test
                 StrUtil.c
                 t_regexw.c
+                t_csv.c
                 ../modules/cutest-1.5/CuTest.c
                 test_all.c )
 

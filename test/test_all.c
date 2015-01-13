@@ -1,15 +1,19 @@
 #include <CuTest.h>
 #include <stdio.h>
+#include <util.h>
 
 CuSuite* StrUtilGetSuite();
 CuSuite* make_regex_suite();
+CuSuite* make_csv_suite();
 
-void RunAllTests(void) {
+void RunAllTests(void)
+{
     CuString *output = CuStringNew();
     CuSuite* suite = CuSuiteNew();
 
     CuSuiteAddSuite(suite, StrUtilGetSuite());
     CuSuiteAddSuite(suite, make_regex_suite());
+    CuSuiteAddSuite(suite, make_csv_suite());
 
     CuSuiteRun(suite);
     CuSuiteSummary(suite, output);
@@ -17,6 +21,8 @@ void RunAllTests(void) {
     printf("%s\n", output->buffer);
 }
 
-int main(void) {
+int main(void)
+{
+    out_fd = stdout; /*For Logging*/
     RunAllTests();
 }
