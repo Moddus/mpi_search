@@ -11,9 +11,11 @@ void RunAllTests(void)
     CuString *output = CuStringNew();
     CuSuite* suite = CuSuiteNew();
 
+#if 1
     CuSuiteAddSuite(suite, StrUtilGetSuite());
     CuSuiteAddSuite(suite, make_regex_suite());
     CuSuiteAddSuite(suite, make_csv_suite());
+#endif
 
     CuSuiteRun(suite);
     CuSuiteSummary(suite, output);
