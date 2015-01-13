@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <mpi.h>
 
 #define FALSE ( 0 )
 #define TRUE  ( 1 )
@@ -40,12 +41,19 @@ typedef int ps_status_t;
 
 #define  PS_CHECK_NEG_RET_AND_GOTO_ERROR(rv) PS_CHECK_NEG_RET_AND_GOTO(rv, error)
 
-#define PS_CHECK_AND_GOTO(rv, go)         \
-    if(rv != PS_SUCCESS) {                \
+#define PS_CHECK_ERRV_AND_GOTO(rv, errv, go)         \
+    if(rv != errv) {                \
+        log_err("file : %s line: %d func: %s rv: %d", __FILE__, __LINE__, __func__, rv);\
         goto go;                          \
     }
 
+#define PS_CHECK_AND_GOTO(rv, go) PS_CHECK_ERRV_AND_GOTO(rv, PS_SUCCESS, go)
+
+#define PS_CHECK_ERRV_GOTO_ERROR(rv, errv) PS_CHECK_ERRV_AND_GOTO(rv, errv, error)
+
 #define PS_CHECK_GOTO_ERROR(rv) PS_CHECK_AND_GOTO(rv, error)
+
+#define PS_MPI_CHECK_GOTO_ERROR(rv) PS_CHECK_ERRV_AND_GOTO(rv, MPI_SUCCESS, error)
 
 #define PS_CHECK_PTR_AND_GOTO(ptr, rv)      \
     if (ptr == NULL) {                    \
@@ -64,7 +72,6 @@ typedef int ps_status_t;
         goto error;                                 \
     }                                               \
 }
-
 
 #define PS_MALLOC(PTR, SIZE) {            \
     PTR = malloc(SIZE);                   \

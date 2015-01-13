@@ -19,8 +19,8 @@ main(int argc, char *argv[])
     char *search = NULL, *filename = NULL;
     int i = 0, c = 0;
     int number_of_procs = 0, own_rank = 0;
-    FILE *searchfile = NULL;
-    search_task_t *task = NULL;
+    ps_search_task_t *task = NULL;
+    int *slave_procs = NULL;
 
     out_fd = stdout; /*For Logging*/
 
@@ -28,10 +28,11 @@ main(int argc, char *argv[])
     MPI_Comm_size(MPI_COMM_WORLD, &number_of_procs);
     MPI_Comm_rank (MPI_COMM_WORLD, &own_rank);
 
+    /*set log level until arguments are passed and processed*/
+    set_log_level(log_level);
+
     if (own_rank == MASTER)
     {
-        unsigned long total_filesize = -1, search_range_size = -1;
-
         opterr = 0;
         while ((c = getopt (argc, argv, "hds:f:")) != -1)
         {
@@ -61,46 +62,51 @@ main(int argc, char *argv[])
             }
         }
 
-        set_log_level(LOG_LEVEL_DEBUG);
-        log_debug("search = %s, filename = %s\n", search, filename);
+        set_log_level(log_level);
+        log_debug("search = %s, filename = %s", search, filename);
 
         for (i = optind; i < argc; i++)
         {
-            log_debug("Non-option argument %s\n", argv[i]);
+            log_debug("Non-option argument %s", argv[i]);
         }
         /*-------------------Processing of arguments done!-----------*/
+    }
 
-        PS_CHECK_GOTO_ERROR(get_filesize(filename, &total_filesize));
+    PS_MPI_CHECK_GOTO_ERROR(MPI_Bcast(&log_level, 1, MPI_INT, MASTER, MPI_COMM_WORLD));
+            
+    /*Communicate log_level*/
+    if(own_rank == MASTER)
+    {
+        PS_MALLOC( slave_procs, sizeof(int) * (number_of_procs - 1));
+        for (i = 0; i < number_of_procs - 1; i++)
+        {
+            slave_procs[i] = i + 1;
+        }
 
-        search_range_size = total_filesize / number_of_procs;
-        log_debug("Search_range_size : %lu\n", search_range_size);
 
-        /*Distribution of the search ranges. The master process takes the first */
-        PS_MALLOC(task, sizeof(char) * strlen(filename) + sizeof(search_task_t));
-        task->start = 0;
-        task->end = search_range_size - 1;
-        task->filename_size = strlen(filename);
-        PS_COMPARE_GOTO_ERROR(
-                strlcpy(task->filename, filename, task->filename_size + 1), /*+1 for \n*/
-                task->filename_size,
-                PS_ERROR_COPY);
-       /*TODO: Tell the slaves in which ranges and which files to search */ 
+        PS_CHECK_GOTO_ERROR( distribute_filename_and_search_range(filename, number_of_procs - 1,
+                             slave_procs, MPI_COMM_WORLD, &task));
     }
     else
     {
+        set_log_level(log_level);
         /*Retrieve the tasks on the slaves*/
     }
 
-    log_debug("Process %d finished\n", own_rank);
+    /*TODO: Entfernen*/
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    log_debug("Process %d finished", own_rank);
     MPI_Finalize();
 
+    PS_FREE(slave_procs);
     PS_FREE(task);
     return EXIT_SUCCESS;
     /*-----------------ERROR-Handling------------------------------*/
 error:
 
     MPI_Finalize();
-    PS_CLOSE_FILE(searchfile); 
+    PS_FREE(slave_procs);
     PS_FREE(task);
     return rv;
 }
