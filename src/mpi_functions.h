@@ -1,6 +1,8 @@
 #ifndef MPI_FUNCTIONS_H
 #define MPI_FUNCTIONS_H 
 
+#include <mpi.h>
+
 #define MASTER 0
 
 #define PS_MPI_TAG_FILENAME_LENGTH 0
@@ -10,7 +12,7 @@ typedef struct ps_search_task{
     /*Gibt Bereich an, in dem gesucht werden soll, in Byte*/
     unsigned long start, offset;
     /*Laenge des Dateinamens*/
-    unsigned int filename_size;
+    unsigned int filename_len;
     /*Datei, die durchsucht werden soll*/
     char filename[];
 } ps_search_task_t;

@@ -72,7 +72,7 @@ main(int argc, char *argv[])
         /*-------------------Processing of arguments done!-----------*/
     }
 
-    PS_MPI_CHECK_GOTO_ERROR(MPI_Bcast(&log_level, 1, MPI_INT, MASTER, MPI_COMM_WORLD));
+    PS_MPI_CHECK_ERR(MPI_Bcast(&log_level, 1, MPI_INT, MASTER, MPI_COMM_WORLD));
             
     /*Communicate log_level*/
     if(own_rank == MASTER)
@@ -92,9 +92,6 @@ main(int argc, char *argv[])
         set_log_level(log_level);
         /*Retrieve the tasks on the slaves*/
     }
-
-    /*TODO: Entfernen*/
-    MPI_Barrier(MPI_COMM_WORLD);
 
     log_debug("Process %d finished", own_rank);
     MPI_Finalize();

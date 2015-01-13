@@ -26,40 +26,55 @@ typedef int ps_status_t;
 
 // I/O
 #define PS_ERROR_FAILED_TO_OPEN_FILE ( 201 )
+#define PS_ERROR_FAILED_TO_SEEK ( 202 )
+#define PS_ERROR_FAILED_TO_CALC_SIZE ( 203 )
 
 // Regex
 #define PS_ERROR_REGEX_FOUND_IS_FALSE ( 301 )
 
+// MPI
+#define PS_MPI_COMMON_ERROR ( 401 )
+
 /*
  * Error handling
  */
+#define PS_CALL(R) if((rv=R) != PS_SUCCESS) goto error;
 
-#define PS_CHECK_NEG_RET_AND_GOTO(rv, go)   \
-    if(rv < 0) {                            \
-        goto go;                            \
+#define PS_COMP_VAL_AND_GOTO_WITH_RV(R, OP, VAL, GO, RV)         \
+    if(R OP VAL) {                \
+        rv = RV;                                                    \
+        log_err("file : %s line: %d func: %s rv:%d", __FILE__, __LINE__, __func__, rv);\
+        goto GO;                          \
     }
 
-#define  PS_CHECK_NEG_RET_AND_GOTO_ERROR(rv) PS_CHECK_NEG_RET_AND_GOTO(rv, error)
+#define PS_MPI_CHECK_ERR(R) PS_COMP_VAL_AND_GOTO_WITH_RV(R, !=, MPI_SUCCESS, error, PS_MPI_COMMON_ERROR)
 
-#define PS_CHECK_ERRV_AND_GOTO(rv, errv, go)         \
-    if(rv != errv) {                \
-        log_err("file : %s line: %d func: %s rv: %d", __FILE__, __LINE__, __func__, rv);\
-        goto go;                          \
+#define PS_CHECK_VAL_GO_ERR(R, VAL, RV) PS_COMP_VAL_AND_GOTO_WITH_RV(R, !=, VAL, error, RV)
+
+#define PS_CHECK_NEG_VAL_GO_ERR(R, RV) PS_COMP_VAL_AND_GOTO_WITH_RV(R, <, 0, error, RV)
+
+#define PS_COMP(VAL1, VAL2, RV) PS_COMP_VAL_AND_GOTO_WITH_RV(VAL1, !=, VAL2, error, RV)
+
+#define PS_CHECK_VAL_AND_GOTO(RV, VAL, GO)         \
+    if(RV != VAL) {                \
+        log_err("file : %s line: %d func: %s", __FILE__, __LINE__, __func__);\
+        goto GO;                          \
     }
 
-#define PS_CHECK_AND_GOTO(rv, go) PS_CHECK_ERRV_AND_GOTO(rv, PS_SUCCESS, go)
+#define PS_CHECK_AND_GOTO(RV, GO) PS_CHECK_VAL_AND_GOTO(RV, PS_SUCCESS, GO)
 
-#define PS_CHECK_ERRV_GOTO_ERROR(rv, errv) PS_CHECK_ERRV_AND_GOTO(rv, errv, error)
+#define PS_CHECK_GOTO_ERROR(RV) PS_CHECK_AND_GOTO(RV, error)
 
-#define PS_CHECK_GOTO_ERROR(rv) PS_CHECK_AND_GOTO(rv, error)
-
-#define PS_MPI_CHECK_GOTO_ERROR(rv) PS_CHECK_ERRV_AND_GOTO(rv, MPI_SUCCESS, error)
-
-#define PS_CHECK_PTR_AND_GOTO(ptr, rv)      \
-    if (ptr == NULL) {                    \
+#define PS_CHECK_PTR_AND_GOTO_ERROR(PTR)  \
+    if (PTR == NULL) {                    \
         rv = PS_ERROR_ALLOCATION;         \
         goto error;                       \
     }
+
+#define PS_MALLOC(PTR, SIZE) {            \
+    PTR = malloc(SIZE);                   \
+    PS_CHECK_PTR_AND_GOTO_ERROR(PTR)      \
+}
 
 #define PS_CHECK_PTR_NULL(PTR, RV){                 \
     if ( !PTR )                                     \
@@ -73,10 +88,7 @@ typedef int ps_status_t;
     }                                               \
 }
 
-#define PS_MALLOC(PTR, SIZE) {            \
-    PTR = malloc(SIZE);                   \
-    PS_CHECK_PTR_AND_GOTO(PTR, rv)          \
-}
+
 
 #define PS_FREE(PTR){                       \
     if(PTR)                                 \
@@ -93,15 +105,6 @@ typedef int ps_status_t;
         FILE = NULL;                        \
     }                                       \
 }
-
-#define PS_COMPARE_GOTO(VAL1, VAL2, RV, GO){    \
-    if(VAL1 != VAL2){                               \
-        rv = RV;                                    \
-        goto GO;                                    \
-    }                                               \
-}
-
-#define PS_COMPARE_GOTO_ERROR(VAL1, VAL2, RV) PS_COMPARE_GOTO(VAL1, VAL2, RV, error)
 
 /*
  * Logging

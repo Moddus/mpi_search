@@ -8,28 +8,27 @@
 
 int
 malloc_and_set_ps_search_task(ps_search_task_t **task, unsigned long start, unsigned long offset,
-                              int filename_size, char* filename)
+                              int filename_len, char* filename)
 {
     ps_status_t rv = PS_SUCCESS;
     size_t search_task_mem_size = 0;
 
     log_debug("malloc_and_set_ps_search_task:begin");
-    search_task_mem_size = sizeof(char) * filename_size + sizeof(ps_search_task_t);
+    search_task_mem_size = sizeof(char) * filename_len + sizeof(ps_search_task_t);
     PS_MALLOC(*task, search_task_mem_size);
 
     (*task)->start = start;
     (*task)->offset = offset;
-    (*task)->filename_size = filename_size;
+    (*task)->filename_len = filename_len;
 
-    PS_COMPARE_GOTO_ERROR(
-        strlcpy((*task)->filename, filename, search_task_mem_size + 1), /*+1 for \n*/
-        search_task_mem_size,
+    PS_COMP(
+        strlcpy((*task)->filename, filename, filename_len + 1), /*+1 for \n*/
+        filename_len,
         PS_ERROR_COPY);
     log_debug("malloc_and_set_ps_search_task:end");
     return rv;
 error:
     PS_FREE(*task);
-    log_err("malloc_and_set_ps_search_task:error");
     return rv;
 }
 
@@ -60,7 +59,7 @@ distribute_filename_and_search_range(char *filename, int number_of_slave_procs,
 
     search_task_mem_size = sizeof(char) * filename_len + sizeof(ps_search_task_t);
 
-    PS_CHECK_GOTO_ERROR(get_filesize(filename, &total_filesize));
+    PS_CALL(get_filesize(filename, &total_filesize));
     log_debug("total_filesize:%lu", total_filesize);
 
     slave_search_range_size = total_filesize / number_of_slave_procs;
@@ -70,7 +69,7 @@ distribute_filename_and_search_range(char *filename, int number_of_slave_procs,
               slave_search_range_size, master_search_range_size);
 
     /*Set search_task for master*/
-    PS_CHECK_GOTO_ERROR( malloc_and_set_ps_search_task(master_task, 0, master_search_range_size - 1,
+    PS_CALL( malloc_and_set_ps_search_task(master_task, 0, master_search_range_size - 1,
                          filename_len, filename));
 
     PS_MALLOC(slave_tasks, sizeof(ps_search_task_t*) * number_of_slave_procs);
@@ -93,7 +92,7 @@ distribute_filename_and_search_range(char *filename, int number_of_slave_procs,
                   PS_MPI_TAG_SEARCH_TASK, comm, &requests[2 * i + 1]);
     }
 
-    PS_CHECK_GOTO_ERROR(MPI_Waitall(number_of_slave_procs, requests, MPI_STATUSES_IGNORE));
+    PS_MPI_CHECK_ERR(MPI_Waitall(number_of_slave_procs, requests, MPI_STATUSES_IGNORE));
 
     PS_FREE(slave_tasks);
     PS_FREE(requests);
