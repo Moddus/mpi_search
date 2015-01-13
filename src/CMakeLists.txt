@@ -7,7 +7,8 @@ SET(source file_searcher.c
            util.c
            log.c
            mpi_functions.c
-           file_util.c )
+           file_util.c
+           csv.c )
 
 ADD_EXECUTABLE( mpi_searcher
                 main.c

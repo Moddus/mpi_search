@@ -83,7 +83,7 @@ main(int argc, char *argv[])
         PS_COMPARE_GOTO_ERROR(
                 strlcpy(task->filename, filename, task->filename_size + 1), /*+1 for \n*/
                 task->filename_size,
-                PS_COPY_ERROR);
+                PS_ERROR_COPY);
        /*TODO: Tell the slaves in which ranges and which files to search */ 
     }
     else
