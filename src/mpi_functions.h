@@ -19,7 +19,7 @@ typedef struct ps_search_task{
 
 int
 malloc_and_set_ps_search_task(ps_search_task_t **task, unsigned long start, unsigned long offset,
-                              int filename_size, char* filename);
+                              unsigned long filename_size, char* filename);
 
 /**
  * Divides the filename into peaces for searching. The master_task is a lot smaller,
@@ -38,4 +38,8 @@ distribute_filename_and_search_range(char *filename, int number_of_slave_procs,
                                      ps_search_task_t **master_task);
 
 
+int
+recv_task(ps_search_task_t **task, int own_rank, int master, MPI_Comm comm);
+
 #endif
+

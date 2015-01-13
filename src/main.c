@@ -89,11 +89,14 @@ main(int argc, char *argv[])
     }
     else
     {
+        /*Slaves receive filename_length and search_task*/
         set_log_level(log_level);
-        /*Retrieve the tasks on the slaves*/
+
+        PS_CHECK_GOTO_ERROR( recv_task(&task, own_rank, MASTER, MPI_COMM_WORLD));
     }
 
     log_debug("Process %d finished", own_rank);
+
     MPI_Finalize();
 
     PS_FREE(slave_procs);
