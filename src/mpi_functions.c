@@ -52,7 +52,7 @@ distribute_filename_and_search_range(char *filename, int number_of_slave_procs,
     {
         log_err("wrong arguments in distribute_filename_and_search_range: \
                  filename=%s, number_of_slave_procs:%d, master_task:%p",
-                 filename, number_of_slave_procs, *master_task);
+                filename, number_of_slave_procs, *master_task);
         rv = PS_ERROR_WRONG_ARGUMENTS;
         goto error;
     }
@@ -70,14 +70,14 @@ distribute_filename_and_search_range(char *filename, int number_of_slave_procs,
 
     /*Set search_task for master*/
     PS_CALL( malloc_and_set_ps_search_task(master_task, 0, master_search_range_size - 1,
-                         filename_len, filename));
+                                           filename_len, filename));
 
     PS_MALLOC(slave_tasks, sizeof(ps_search_task_t*) * number_of_slave_procs);
 
     /*Need two requests per slave*/
     PS_MALLOC(requests, 2 * sizeof(MPI_Request) * number_of_slave_procs);
     /*Tell the slaves in which ranges and which files to search */
-    for (i = 0, start = master_search_range_size ; i < number_of_slave_procs - 1; i++)
+    for (i = 0, start = master_search_range_size ; i < number_of_slave_procs; i++)
     {
         PS_CHECK_GOTO_ERROR( malloc_and_set_ps_search_task(
                                  &slave_tasks[i],
@@ -93,6 +93,10 @@ distribute_filename_and_search_range(char *filename, int number_of_slave_procs,
     }
 
     PS_MPI_CHECK_ERR(MPI_Waitall(number_of_slave_procs, requests, MPI_STATUSES_IGNORE));
+    for (i = 0; i < number_of_slave_procs; i++)
+    {
+        PS_FREE(slave_tasks[i]);
+    }
 
     PS_FREE(slave_tasks);
     PS_FREE(requests);
@@ -101,6 +105,14 @@ distribute_filename_and_search_range(char *filename, int number_of_slave_procs,
 
 error:
     PS_FREE(*master_task);
+    if (slave_tasks)
+    {
+        for (i = 0; i < number_of_slave_procs; i++)
+        {
+            PS_FREE(slave_tasks[i]);
+        }
+    }
+
     PS_FREE(slave_tasks);
     PS_FREE(requests);
     return rv;
