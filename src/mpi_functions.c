@@ -87,11 +87,11 @@ distribute_filename_and_search_range(char *filename, int number_of_slave_procs,
                                  filename));
 
         log_debug("Process %d: offset:%lu, size:%lu, filename:%s, search_task_mem_size:%d",
-                  i, slave_tasks[i]->offset, slave_tasks[i]->size, slave_tasks[i]->filename, search_task_mem_size);
-        MPI_Isend(&filename_len, 1, MPI_INT, slave_proc_numbers[i],
-                  PS_MPI_TAG_FILENAME_LENGTH, comm, &requests[2 * i]);
-        MPI_Isend(slave_tasks[i], search_task_mem_size, MPI_BYTE, slave_proc_numbers[i],
-                  PS_MPI_TAG_SEARCH_TASK, comm, &requests[2 * i + 1]);
+                  slave_proc_numbers[i], slave_tasks[i]->offset, slave_tasks[i]->size, slave_tasks[i]->filename, search_task_mem_size);
+        PS_MPI_CHECK_ERR(MPI_Isend(&filename_len, 1, MPI_INT, slave_proc_numbers[i],
+                  PS_MPI_TAG_FILENAME_LENGTH, comm, &requests[2 * i]));
+        PS_MPI_CHECK_ERR(MPI_Isend(slave_tasks[i], search_task_mem_size, MPI_BYTE, slave_proc_numbers[i],
+                  PS_MPI_TAG_SEARCH_TASK, comm, &requests[2 * i + 1]));
     }
 
     PS_MPI_CHECK_ERR(MPI_Waitall(number_of_slave_procs, requests, MPI_STATUSES_IGNORE));
