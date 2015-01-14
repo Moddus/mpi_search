@@ -1,9 +1,5 @@
 FIND_PACKAGE(MPI REQUIRED)
 
-IF(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
-    INCLUDE_DIRECTORIES(/usr/local/share/mpich-install/include)
-ENDIF()
-
 INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 
 SET(source file_searcher.c
