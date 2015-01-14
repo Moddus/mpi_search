@@ -14,9 +14,6 @@ ADD_EXECUTABLE( mpi_searcher
                 main.c
                 ${source} )
 
-TARGET_LINK_LIBRARIES( mpi_searcher
-                       pcre )
-
 ADD_LIBRARY( mpi_searcher_lib STATIC
              ${source} )
 
