@@ -79,6 +79,7 @@ main(int argc, char *argv[])
     /*Communicate log_level*/
     if(own_rank == MASTER)
     {
+        log_debug("Number of procs:%d", number_of_procs);
         PS_MALLOC( slave_procs, sizeof(int) * (number_of_procs - 1));
         for (i = 0; i < number_of_procs - 1; i++)
         {
