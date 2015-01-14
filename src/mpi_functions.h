@@ -3,19 +3,12 @@
 
 #include <mpi.h>
 
+#include "file_searcher.h"
+
 #define MASTER 0
 
 #define PS_MPI_TAG_FILENAME_LENGTH 0
 #define PS_MPI_TAG_SEARCH_TASK 1
-
-typedef struct ps_search_task{
-    /*Gibt Bereich an, in dem gesucht werden soll, in Byte*/
-    unsigned long offset, size;
-    /*Laenge des Dateinamens*/
-    unsigned int filename_len;
-    /*Datei, die durchsucht werden soll*/
-    char filename[];
-} ps_search_task_t;
 
 int
 malloc_and_set_ps_search_task(ps_search_task_t **task, unsigned long start, unsigned long offset,

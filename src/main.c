@@ -9,6 +9,7 @@
 #include "util.h"
 #include "log.h"
 #include "mpi_functions.h"
+#include "file_searcher.h"
 #include "file_util.h"
 #include "ps_mpi.h"
 
@@ -94,6 +95,7 @@ main(int argc, char *argv[])
         set_log_level(log_level);
 
         PS_CHECK_GOTO_ERROR( recv_task(&task, own_rank, MASTER, MPI_COMM_WORLD));
+        PS_CHECK_GOTO_ERROR( ps_file_searcher_search(task));
     }
 
     log_debug("Process %d finished", own_rank);
