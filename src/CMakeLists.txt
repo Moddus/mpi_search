@@ -3,12 +3,13 @@ FIND_PACKAGE(MPI REQUIRED)
 INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 
 SET(source file_searcher.c
-    regexw.c
-    util.c
-    log.c
-    mpi_functions.c
-    file_util.c
-    csv.c )
+           regexw.c
+           util.c
+           log.c
+           mpi_functions.c
+           file_util.c
+           csv.c
+           ps_mpi.c )
 
 ADD_EXECUTABLE( mpi_searcher
     main.c

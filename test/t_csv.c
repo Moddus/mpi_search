@@ -6,7 +6,8 @@
 void
 GetColumn(CuTest* tc)
 {
-    char* col = ps_csv_get_column("1;2;3\n", 0);
+    char* col = ps_csv_get_column("test", 0);
+    log_debug("%s\n", col);
 }
 
 CuSuite*

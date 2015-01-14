@@ -10,6 +10,7 @@
 #include "log.h"
 #include "mpi_functions.h"
 #include "file_util.h"
+#include "ps_mpi.h"
 
 int
 main(int argc, char *argv[])

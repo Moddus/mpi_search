@@ -2,26 +2,19 @@
 
 #include "csv.h"
 #include "log.h"
+#include "util.h"
 
 char*
-ps_csv_get_column(char* content, int column)
+ps_csv_get_column(char* content,
+                  int column)
 {
-    char* itr = content;
-    char* val = content;
     int i = 0;
 
-    while(NULL != (itr = strstr(itr, PS_CSV_SPACER)))
+    char* itr = strtok(content, PS_CSV_SPACER);
+    while(NULL != itr)
     {
-        if(i == column)
-        {
-            //log_debug("%p %c\n", itr, *itr);
-            //*itr = '\n';
-            break;
-        }
-        itr++;
-        i++;
-        val = itr;
+        itr = strtok(NULL, PS_CSV_SPACER);
     }
 
-    return val;
+    return content;
 }

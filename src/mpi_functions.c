@@ -1,6 +1,7 @@
 #include <mpi.h>
 #include <string.h>
 
+#include "ps_mpi.h"
 #include "mpi_functions.h"
 #include "util.h"
 #include "log.h"
