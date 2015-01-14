@@ -8,7 +8,7 @@
 #include "file_util.h"
 
 int
-malloc_and_set_ps_search_task(ps_search_task_t **task, unsigned long start, unsigned long offset,
+malloc_and_set_ps_search_task(ps_search_task_t **task, unsigned long offset, unsigned long size,
                               unsigned long filename_len, char* filename)
 {
     ps_status_t rv = PS_SUCCESS;
@@ -18,8 +18,8 @@ malloc_and_set_ps_search_task(ps_search_task_t **task, unsigned long start, unsi
     search_task_mem_size = sizeof(char) * filename_len + sizeof(ps_search_task_t);
     PS_MALLOC(*task, search_task_mem_size);
 
-    (*task)->start = start;
     (*task)->offset = offset;
+    (*task)->size= size;
     (*task)->filename_len = filename_len;
 
     PS_COMP(
@@ -86,8 +86,8 @@ distribute_filename_and_search_range(char *filename, int number_of_slave_procs,
                                  filename_len,
                                  filename));
 
-        log_debug("Process %d: start:%lu, offset:%lu, filename:%s, search_task_mem_size:%d",
-                  i, slave_tasks[i]->start, slave_tasks[i]->offset, slave_tasks[i]->filename, search_task_mem_size);
+        log_debug("Process %d: offset:%lu, size:%lu, filename:%s, search_task_mem_size:%d",
+                  i, slave_tasks[i]->offset, slave_tasks[i]->size, slave_tasks[i]->filename, search_task_mem_size);
         MPI_Isend(&filename_len, 1, MPI_INT, slave_proc_numbers[i],
                   PS_MPI_TAG_FILENAME_LENGTH, comm, &requests[2 * i]);
         MPI_Isend(slave_tasks[i], search_task_mem_size, MPI_BYTE, slave_proc_numbers[i],

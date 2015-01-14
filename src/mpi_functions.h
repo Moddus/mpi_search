@@ -10,7 +10,7 @@
 
 typedef struct ps_search_task{
     /*Gibt Bereich an, in dem gesucht werden soll, in Byte*/
-    unsigned long start, offset;
+    unsigned long offset, size;
     /*Laenge des Dateinamens*/
     unsigned int filename_len;
     /*Datei, die durchsucht werden soll*/
