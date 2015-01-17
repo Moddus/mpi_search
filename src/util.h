@@ -46,8 +46,6 @@ typedef int ps_status_t;
         goto GO;                          \
     }
 
-#define PS_MPI_CHECK_ERR(R) PS_COMP_VAL_AND_GOTO_WITH_RV(R, !=, MPI_SUCCESS, error, PS_MPI_COMMON_ERROR)
-
 #define PS_CHECK_VAL_GO_ERR(R, VAL, RV) PS_COMP_VAL_AND_GOTO_WITH_RV(R, !=, VAL, error, RV)
 
 #define PS_CHECK_NEG_VAL_GO_ERR(R, RV) PS_COMP_VAL_AND_GOTO_WITH_RV(R, <, 0, error, RV)
