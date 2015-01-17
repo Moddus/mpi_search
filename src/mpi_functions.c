@@ -12,11 +12,9 @@ malloc_and_set_ps_search_task(ps_search_task_t **task, unsigned long offset, uns
                               unsigned long filename_len, char* filename)
 {
     ps_status_t rv = PS_SUCCESS;
-    size_t search_task_mem_size = 0;
 
     log_debug("malloc_and_set_ps_search_task:begin");
-    search_task_mem_size = sizeof(char) * filename_len + sizeof(ps_search_task_t);
-    PS_MALLOC(*task, search_task_mem_size);
+    PS_MALLOC(*task, sizeof(char) * filename_len + sizeof(ps_search_task_t));
 
     (*task)->offset = offset;
     (*task)->size= size;
