@@ -10,16 +10,16 @@ GetColumn(CuTest* tc)
     char* val;
     ps_csv_get_column(test, &val, 0);
     CuAssertStrEquals(tc, "a", val);
-    free(val);
+    PS_FREE(val);
     ps_csv_get_column(test, &val, 1);
     CuAssertStrEquals(tc, "b", val);
-    free(val);
+    PS_FREE(val);
     ps_csv_get_column(test, &val, 2);
     CuAssertStrEquals(tc, "c", val);
-    free(val);
+    PS_FREE(val);
     ps_csv_get_column(test, &val, 3);
     CuAssertStrEquals(tc, "d", val);
-    free(val);
+    PS_FREE(val);
 }
 
 CuSuite*

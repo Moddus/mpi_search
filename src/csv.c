@@ -27,7 +27,7 @@ ps_csv_get_column(const char* content,
     size_t len = strlen(itr) + 1;
     PS_MALLOC(*val, len * sizeof(char));
     strlcpy(*val, itr, len);
-    free(cp);
+    PS_FREE(cp);
 
     return rv;
 
