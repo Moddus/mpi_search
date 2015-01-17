@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <util.h>
 
-CuSuite* StrUtilGetSuite();
 CuSuite* make_regex_suite();
 CuSuite* make_csv_suite();
 
@@ -12,7 +11,6 @@ void RunAllTests(void)
     CuSuite* suite = CuSuiteNew();
 
 #if 1
-    CuSuiteAddSuite(suite, StrUtilGetSuite());
     CuSuiteAddSuite(suite, make_regex_suite());
     CuSuiteAddSuite(suite, make_csv_suite());
 #endif
