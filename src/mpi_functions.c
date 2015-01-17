@@ -8,8 +8,11 @@
 #include "file_util.h"
 
 int
-malloc_and_set_ps_search_task(ps_search_task_t **task, unsigned long offset, unsigned long size,
-                              unsigned long filename_len, char* filename)
+malloc_and_set_ps_search_task(ps_search_task_t **task,
+                              unsigned long offset,
+                              unsigned long size,
+                              unsigned long filename_len,
+                              char* filename)
 {
     ps_status_t rv = PS_SUCCESS;
 
@@ -25,14 +28,18 @@ malloc_and_set_ps_search_task(ps_search_task_t **task, unsigned long offset, uns
         filename_len,
         PS_ERROR_COPY);
     log_debug("malloc_and_set_ps_search_task:end");
+
     return rv;
+
 error:
     PS_FREE(*task);
+
     return rv;
 }
 
 int
-distribute_filename_and_search_range(char *filename, int number_of_slave_procs,
+distribute_filename_and_search_range(char *filename,
+                                     int number_of_slave_procs,
                                      int *slave_proc_numbers,
                                      MPI_Comm comm,
                                      ps_search_task_t **master_task)
@@ -101,6 +108,7 @@ distribute_filename_and_search_range(char *filename, int number_of_slave_procs,
     PS_FREE(slave_tasks);
     PS_FREE(requests);
     log_debug("distribute_filename_and_search_range:end");
+
     return rv;
 
 error:
@@ -115,11 +123,15 @@ error:
 
     PS_FREE(slave_tasks);
     PS_FREE(requests);
+
     return rv;
 }
 
 int
-recv_task(ps_search_task_t **task, int own_rank, int master, MPI_Comm comm)
+recv_task(ps_search_task_t **task,
+          int own_rank,
+          int master,
+          MPI_Comm comm)
 {
     ps_status_t rv = PS_SUCCESS;
     MPI_Status status;
@@ -134,8 +146,10 @@ recv_task(ps_search_task_t **task, int own_rank, int master, MPI_Comm comm)
     PS_MPI_CHECK_ERR(MPI_Recv(task, tasklen, MPI_BYTE, master, PS_MPI_TAG_SEARCH_TASK, comm, &status));
 
     return rv;
+
 error:
     PS_FREE(task);
+
     return rv;
 }
 
