@@ -10,10 +10,6 @@
 #define PS_MPI_TAG_FILENAME_LENGTH 0
 #define PS_MPI_TAG_SEARCH_TASK 1
 
-int
-malloc_and_set_ps_search_task(ps_search_task_t **task, unsigned long start, unsigned long offset,
-                              unsigned long filename_size, char* filename);
-
 /**
  * Divides the filename into peaces for searching. The master_task is a lot smaller,
  * so that it can focus on reducing the results.

@@ -86,7 +86,7 @@ ps_regex_error_code_to_str(ps_regex_t* re)
 }
 
 ps_status_t
-ps_regex_free(ps_regex_t *re)
+ps_regex_free(ps_regex_t* re)
 {
     pcre_free(re->regex_compiled);
     pcre_free(re->pcre_extra);

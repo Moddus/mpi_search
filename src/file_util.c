@@ -22,11 +22,13 @@ get_filesize(char *filename, unsigned long *filesize)
     PS_CLOSE_FILE(searchfile);
 
     log_debug("get_filesize:end");
+
     return rv;
 
 error:
     PS_CLOSE_FILE(searchfile);
     log_debug("get_filesize:error");
+
     return rv;
 }
 

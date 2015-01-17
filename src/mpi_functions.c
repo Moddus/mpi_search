@@ -8,36 +8,6 @@
 #include "file_util.h"
 
 int
-malloc_and_set_ps_search_task(ps_search_task_t **task,
-                              unsigned long offset,
-                              unsigned long size,
-                              unsigned long filename_len,
-                              char* filename)
-{
-    ps_status_t rv = PS_SUCCESS;
-
-    log_debug("malloc_and_set_ps_search_task:begin");
-    PS_MALLOC(*task, sizeof(char) * filename_len + sizeof(ps_search_task_t));
-
-    (*task)->offset = offset;
-    (*task)->size= size;
-    (*task)->filename_len = filename_len;
-
-    PS_COMP(
-        strlcpy((*task)->filename, filename, filename_len + 1), /*+1 for \n*/
-        filename_len,
-        PS_ERROR_COPY);
-    log_debug("malloc_and_set_ps_search_task:end");
-
-    return rv;
-
-error:
-    PS_FREE(*task);
-
-    return rv;
-}
-
-int
 distribute_filename_and_search_range(char *filename,
                                      int number_of_slave_procs,
                                      int *slave_proc_numbers,
@@ -74,8 +44,10 @@ distribute_filename_and_search_range(char *filename,
               slave_search_range_size, master_search_range_size);
 
     /*Set search_task for master*/
-    PS_CALL( malloc_and_set_ps_search_task(master_task, 0, master_search_range_size - 1,
-                                           filename_len, filename));
+    PS_CALL( ps_searcher_task_create(master_task,
+                                     0,
+                                     master_search_range_size - 1,
+                                     filename_len, filename));
 
     PS_MALLOC(slave_tasks, sizeof(ps_search_task_t*) * number_of_slave_procs);
 
@@ -84,12 +56,11 @@ distribute_filename_and_search_range(char *filename,
     /*Tell the slaves in which ranges and which files to search */
     for (i = 0, start = master_search_range_size ; i < number_of_slave_procs; i++)
     {
-        PS_CHECK_GOTO_ERROR( malloc_and_set_ps_search_task(
-                                 &slave_tasks[i],
-                                 start + i * slave_search_range_size,
-                                 slave_search_range_size,
-                                 filename_len,
-                                 filename));
+        PS_CHECK_GOTO_ERROR( ps_searcher_task_create(&slave_tasks[i],
+                                                     start + i * slave_search_range_size,
+                                                     slave_search_range_size,
+                                                     filename_len,
+                                                     filename));
 
         log_debug("Process %d: offset:%lu, size:%lu, filename:%s, search_task_mem_size:%d",
                   slave_proc_numbers[i], slave_tasks[i]->offset, slave_tasks[i]->size, slave_tasks[i]->filename, search_task_mem_size);

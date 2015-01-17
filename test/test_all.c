@@ -4,6 +4,7 @@
 
 CuSuite* make_regex_suite();
 CuSuite* make_csv_suite();
+CuSuite* make_file_searcher_suite();
 
 void RunAllTests(void)
 {
@@ -13,6 +14,7 @@ void RunAllTests(void)
 #if 1
     CuSuiteAddSuite(suite, make_regex_suite());
     CuSuiteAddSuite(suite, make_csv_suite());
+    CuSuiteAddSuite(suite, make_file_searcher_suite());
 #endif
 
     CuSuiteRun(suite);

@@ -3,12 +3,14 @@
 #include <pcre.h>
 #include <util.h>
 
+#include "test_all.h"
+
 void
 TestCreateAndFree(CuTest* tc)
 {
     ps_regex_t* re;
 
-    ps_regex_create(&re, "[ab]a");
+    TEST_CHECK(tc, ps_regex_create(&re, "[ab]a"));
 
     CuAssertStrEquals(tc, "[ab]a", re->regex);
     CuAssertIntEquals(tc, FALSE, re->found);
@@ -16,7 +18,7 @@ TestCreateAndFree(CuTest* tc)
     CuAssertPtrNotNull(tc, re->regex_compiled);
     CuAssertPtrNotNull(tc, re->pcre_extra);
 
-    ps_regex_free(re);
+    TEST_CHECK(tc, ps_regex_free(re));
     CuAssertPtrEquals(tc, NULL, re->regex_compiled);
     CuAssertPtrEquals(tc, NULL, re->pcre_extra);
 }

@@ -86,7 +86,6 @@ main(int argc, char *argv[])
             slave_procs[i] = i + 1;
         }
 
-
         PS_CHECK_GOTO_ERROR( distribute_filename_and_search_range(filename, number_of_procs - 1,
                              slave_procs, MPI_COMM_WORLD, &task));
     }
@@ -96,7 +95,8 @@ main(int argc, char *argv[])
         set_log_level(log_level);
 
         PS_CHECK_GOTO_ERROR( recv_task(&task, own_rank, MASTER, MPI_COMM_WORLD));
-        PS_CHECK_GOTO_ERROR( ps_file_searcher_search(task));
+        // TODO: Wieder einkommenteren.
+        //PS_CHECK_GOTO_ERROR( ps_file_searcher_search(task));
     }
 
     log_debug("Process %d finished", own_rank);
