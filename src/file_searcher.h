@@ -5,11 +5,11 @@
 #include "regexw.h"
 
 typedef struct ps_search_task{
-    /*Gibt Bereich an, in dem gesucht werden soll, in Byte*/
+    /*Defines the area to search in*/
     unsigned long offset, size;
-    /*Laenge des Dateinamens*/
+    /*Length of filename*/
     unsigned int filename_len;
-    /*Datei, die durchsucht werden soll*/
+    /*Filename of the file, that should be searched*/
     char filename[];
 } ps_search_task_t;
 
