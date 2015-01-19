@@ -37,8 +37,6 @@ typedef int ps_status_t;
 /*
  * Error handling
  */
-#define PS_CALL(R) if((rv=R) != PS_SUCCESS) goto error;
-
 #define PS_COMP_VAL_AND_GOTO_WITH_RV(R, OP, VAL, GO, RV)         \
     if(R OP VAL) {                \
         rv = RV;                                                    \

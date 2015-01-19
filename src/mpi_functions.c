@@ -35,7 +35,7 @@ distribute_filename_and_search_range(char *filename,
 
     search_task_mem_size = sizeof(char) * filename_len + sizeof(ps_search_task_t);
 
-    PS_CALL(get_filesize(filename, &total_filesize));
+    PS_CHECK_GOTO_ERROR(get_filesize(filename, &total_filesize));
 
     slave_search_range_size = total_filesize / number_of_slave_procs;
     /*master searches only in a small range and focuses on reducing the results*/
@@ -44,7 +44,7 @@ distribute_filename_and_search_range(char *filename,
               slave_search_range_size, master_search_range_size);
 
     /*Set search_task for master*/
-    PS_CALL( ps_searcher_task_create(master_task,
+    PS_CHECK_GOTO_ERROR( ps_searcher_task_create(master_task,
                                      0,
                                      master_search_range_size - 1,
                                      filename_len, filename));
