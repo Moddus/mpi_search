@@ -17,7 +17,7 @@ distribute_filename_and_search_range(char *filename,
     ps_status_t rv = PS_SUCCESS;
     unsigned long total_filesize = 0, slave_search_range_size = 0, master_search_range_size = 0, start = 0;
     ps_search_task_t **slave_tasks = NULL;
-    int filename_len = strlen(filename);
+    unsigned int filename_len = strlen(filename);
     int i = 0;
     size_t search_task_mem_size = 0;
     MPI_Request *requests = NULL;
@@ -64,7 +64,7 @@ distribute_filename_and_search_range(char *filename,
 
         log_debug("Process %d: offset:%lu, size:%lu, filename:%s, search_task_mem_size:%d",
                   slave_proc_numbers[i], slave_tasks[i]->offset, slave_tasks[i]->size, slave_tasks[i]->filename, search_task_mem_size);
-        PS_MPI_CHECK_ERR(MPI_Isend(&filename_len, 1, MPI_INT, slave_proc_numbers[i],
+        PS_MPI_CHECK_ERR(MPI_Isend(&filename_len, 1, MPI_UNSIGNED, slave_proc_numbers[i],
                   PS_MPI_TAG_FILENAME_LENGTH, comm, &requests[2 * i]));
         PS_MPI_CHECK_ERR(MPI_Isend(slave_tasks[i], search_task_mem_size, MPI_BYTE, slave_proc_numbers[i],
                   PS_MPI_TAG_SEARCH_TASK, comm, &requests[2 * i + 1]));
@@ -106,10 +106,10 @@ recv_task(ps_search_task_t **task,
 {
     ps_status_t rv = PS_SUCCESS;
     MPI_Status status;
-    int filename_length = -1;
+    unsigned int filename_length = -1;
     size_t tasklen = 0;
 
-    PS_MPI_CHECK_ERR(MPI_Recv(&filename_length, 1, MPI_INT, master, PS_MPI_TAG_FILENAME_LENGTH, comm, &status));
+    PS_MPI_CHECK_ERR(MPI_Recv(&filename_length, 1, MPI_UNSIGNED, master, PS_MPI_TAG_FILENAME_LENGTH, comm, &status));
 
     tasklen = sizeof(char) * filename_length + sizeof(ps_search_task_t);
     log_debug("Process %d: filename_length:%d ,tasklen:%d", own_rank, filename_length, tasklen);
