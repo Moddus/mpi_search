@@ -70,7 +70,7 @@ distribute_filename_and_search_range(char *filename,
                   PS_MPI_TAG_SEARCH_TASK, comm, &requests[2 * i + 1]));
     }
 
-    PS_MPI_CHECK_ERR(MPI_Waitall(number_of_slave_procs, requests, MPI_STATUSES_IGNORE));
+    PS_MPI_CHECK_ERR(MPI_Waitall(2 * number_of_slave_procs, requests, MPI_STATUSES_IGNORE));
     for (i = 0; i < number_of_slave_procs; i++)
     {
         PS_FREE(slave_tasks[i]);
