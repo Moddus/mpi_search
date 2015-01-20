@@ -43,7 +43,7 @@ int
 ps_file_searcher_search(ps_searcher_t* searcher)
 {
     ps_status_t rv = PS_SUCCESS;
-    log_debug("ps_file_searcher_search:begin");
+    log_debug("%s:begin", __func__);
     // TODO silver searcher
     return rv;
 }
@@ -57,7 +57,7 @@ ps_searcher_task_create(ps_search_task_t **task,
 {
     ps_status_t rv = PS_SUCCESS;
 
-    log_debug("malloc_and_set_ps_search_task:begin");
+    log_debug("%s:begin", __func__);
     PS_MALLOC(*task, sizeof(char) * filename_len + sizeof(ps_search_task_t));
 
     (*task)->offset = offset;
@@ -68,11 +68,12 @@ ps_searcher_task_create(ps_search_task_t **task,
         strlcpy((*task)->filename, filename, filename_len + 1), /*+1 for \n*/
         filename_len,
         PS_ERROR_COPY);
-    log_debug("malloc_and_set_ps_search_task:end");
+    log_debug("%s:end", __func__);
 
     return rv;
 
 error:
+    log_debug("%s:error", __func__);
     PS_FREE(*task);
 
     return rv;
