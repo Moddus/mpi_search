@@ -71,7 +71,7 @@ distribute_path_and_search_range(char *path,
                                    PS_MPI_TAG_SEARCH_TASK, comm, &requests[2 * i + 1]));
     }
 
-    log_debug("Waiting for &d slaves", number_of_slaves);
+    log_debug("Waiting for %d slaves", number_of_slaves);
     PS_MPI_CHECK_ERR(MPI_Waitall(2 * number_of_slaves, requests, MPI_STATUSES_IGNORE));
     log_debug("Waiting for slaves done");
     for (i = 0; i < number_of_slaves; i++)
@@ -118,9 +118,10 @@ recv_task(ps_search_task_t **task,
     PS_MPI_CHECK_ERR(MPI_Recv(&path_length, 1, MPI_UNSIGNED, master, PS_MPI_TAG_PATH_LENGTH, comm, &status));
 
     tasklen = sizeof(char) * path_length + sizeof(ps_search_task_t);
-    log_debug("Process %d: path_length:%d ,tasklen:%d", own_rank, path_length, tasklen);
-    PS_MALLOC(task, tasklen);
-    PS_MPI_CHECK_ERR(MPI_Recv(task, tasklen, MPI_BYTE, master, PS_MPI_TAG_SEARCH_TASK, comm, &status));
+    log_debug("Process %d: path_length:%d ,tasklen:%d, task:%p", own_rank, path_length, tasklen, task);
+    PS_MALLOC(*task, tasklen);
+    PS_MPI_CHECK_ERR(MPI_Recv(*task, tasklen, MPI_BYTE, master, PS_MPI_TAG_SEARCH_TASK, comm, &status));
+    log_debug("Process %d: task->path:%s", own_rank, (*task)->path);
 
     log_debug("%s:end", __func__);
     return rv;

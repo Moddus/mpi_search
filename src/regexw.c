@@ -10,34 +10,41 @@ ps_regex_create(ps_regex_t** re, char* regex)
 {
     ps_status_t rv = PS_SUCCESS;
 
+    log_debug("%s:begin", __func__);
     PS_MALLOC(*re, sizeof(ps_regex_t));
     (*re)->regex = regex;
     (*re)->error_offset = 0;
+    log_debug("%s:-1", __func__);
     (*re)->regex_compiled = pcre_compile((*re)->regex, 0,
                                          &(*re)->error,
                                          &(*re)->error_offset, NULL);
     (*re)->found = FALSE;
 
+    log_debug("%s:0", __func__);
     if((*re)->regex_compiled == NULL)
     {
         rv = PS_ERROR_OBJ_CREATE;
         goto error;
     }
 
+    log_debug("%s:1", __func__);
     (*re)->pcre_extra = pcre_study( (*re)->regex_compiled,
                                     0,
                                     &(*re)->error);
+    log_debug("%s:2", __func__);
 
     if((*re)->pcre_extra == NULL)
     {
         rv = PS_ERROR_OBJ_CREATE;
         goto error;
     }
+    log_debug("%s:3", __func__);
 
+    log_debug("%s:end", __func__);
     return rv;
 
 error:
-    log_err("could not create ps_regex_t. error: %d\n", rv);
+    log_err("%s-error:could not create ps_regex_t. error: %d\n", __func__,rv);
     return rv;
 }
 
@@ -88,11 +95,17 @@ ps_regex_error_code_to_str(ps_regex_t* re)
 ps_status_t
 ps_regex_free(ps_regex_t* re)
 {
+    log_debug("%s:begin",__func__);
+    log_debug("%s:pcre_free",__func__);
     pcre_free(re->regex_compiled);
+    log_debug("%s:pcre_free_etra",__func__);
     pcre_free(re->pcre_extra);
 
     re->regex_compiled = NULL;
     re->pcre_extra = NULL;
 
+    log_debug("%s:end",__func__);
+
     return PS_SUCCESS;
 }
+

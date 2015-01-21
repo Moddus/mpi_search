@@ -93,18 +93,27 @@ main(int argc, char *argv[])
     {
         /*Slaves receive path_length and search_task*/
         set_log_level(log_level);
+        ps_searcher_t *searcher; 
+        char *result = NULL;
 
         PS_CHECK_GOTO_ERROR( recv_task(&task, own_rank, MASTER, MPI_COMM_WORLD));
-        // TODO: Wieder einkommenteren.
-        //PS_CHECK_GOTO_ERROR( ps_file_searcher_search(task));
+
+        log_debug("vorher:%d", own_rank);
+        PS_CHECK_GOTO_ERROR(ps_file_searcher_create(&searcher, "SSL", task));
+        log_debug("nachher:%d", own_rank);
+        PS_CHECK_GOTO_ERROR(ps_file_searcher_search(searcher, &result));
+        PS_CHECK_GOTO_ERROR(ps_file_searcher_free(&searcher));
+//        log_debug("%d:result:%s", own_rank, result);
     }
 
     log_debug("Process %d finished", own_rank);
 
+    /*TODO: Entfernen*/
+    MPI_Barrier(MPI_COMM_WORLD);
     MPI_Finalize();
 
-    PS_FREE(slave_nodes);
-    PS_FREE(task);
+//    PS_FREE(slave_nodes);
+//    PS_FREE(task);
     return EXIT_SUCCESS;
     /*-----------------ERROR-Handling------------------------------*/
 error:
