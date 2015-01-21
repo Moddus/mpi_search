@@ -7,6 +7,8 @@
 #include "util.h"
 #include "log.h"
 
+#define BUFFER_SIZE ( 1000 )
+
 ps_status_t
 ps_file_searcher_create(ps_searcher_t** searcher,
                         char* search,
@@ -39,12 +41,75 @@ ps_file_searcher_free(ps_searcher_t** searcher)
     return PS_SUCCESS;
 }
 
-int
-ps_file_searcher_search(ps_searcher_t* searcher)
+ps_status_t
+ps_file_searcher_search(ps_searcher_t* searcher,
+                        char** result)
 {
     ps_status_t rv = PS_SUCCESS;
+    int read_limit = searcher->task->size;
+    int read_count = 0;
+    // get enougth space to read
+    unsigned int buffer_len = searcher->task->size * 2;
+    char buffer[buffer_len];
+    unsigned int result_len = 0;
+    unsigned int result_free_space = BUFFER_SIZE;
     log_debug("%s:begin", __func__);
-    // TODO silver searcher
+
+    PS_MALLOC(*result, sizeof(char) * BUFFER_SIZE);
+
+    log_debug("ps_file_searcher_search:begin");
+
+    // open file
+    FILE *file = fopen(searcher->task->path, "r");
+    if ( NULL == file )
+    {
+        return PS_ERROR_FAILED_TO_OPEN_FILE;
+    }
+    // seek to osition
+    fseek(file, searcher->task->offset, SEEK_CUR);
+
+    // move to next line break
+    char c;
+    while( ( c = getc(file) ) != EOF )
+    {
+        read_count++;
+        if(read_count > read_limit)
+        {
+            return PS_ERROR_CHUNCK_TO_SHORT;
+        }
+
+        if(c == '\n')
+            break;
+    }
+
+    while( fgets(buffer, buffer_len, file) != NULL )
+    {
+        int line_len = strlen(buffer) + 1;
+        read_count += line_len;
+        if(read_count > read_limit)
+            break;
+
+        log_debug("read: %s block: %d count: %d\n", buffer, strlen(buffer), read_count);
+        PS_CHECK_GOTO_ERROR(ps_regex_find(searcher->regex, buffer, 0));
+        if(searcher->regex->found == TRUE)
+        {
+            if(result_free_space < line_len)
+            {
+                PS_REALLOC(*result, sizeof(char) * BUFFER_SIZE);
+            }
+
+            strncpy((*result) + result_len, buffer, line_len);
+            result_free_space -= line_len;
+            result_len += line_len;
+        }
+    }
+
+    return rv;
+
+error:
+    log_err("Error while searching: %d", rv);
+    searcher->error = rv;
+
     return rv;
 }
 

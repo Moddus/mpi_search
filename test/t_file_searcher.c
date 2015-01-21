@@ -35,11 +35,35 @@ CreateAndFree(CuTest* tc)
     CuAssertPtrEquals(tc, NULL, searcher);
 }
 
+void
+SearchTest(CuTest* tc)
+{
+    char* file_path = "../test/data/test.csv";
+    ps_searcher_t* searcher = NULL;
+    ps_search_task_t* task = NULL;
+    char* result;
+
+    TEST_CHECK(tc, ps_searcher_task_create(&task,
+                                            0,
+                                            30,
+                                            strlen(file_path),
+                                            file_path));
+
+    TEST_CHECK(tc, ps_file_searcher_create(&searcher,
+                                            "foobar",
+                                            task));
+
+    TEST_CHECK(tc, ps_file_searcher_search(searcher, &result));
+
+    CuAssertStrEquals(tc, "foo;bar;foobar\n", result);
+}
+
 CuSuite*
 make_file_searcher_suite()
 {
     CuSuite* suite = CuSuiteNew();
     SUITE_ADD_TEST(suite, CreateAndFree);
+    SUITE_ADD_TEST(suite, SearchTest);
 
     return suite;
 }

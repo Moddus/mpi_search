@@ -15,7 +15,7 @@ typedef struct ps_regex_t
     const char* error;
     int error_offset;
     int error_code;
-    unsigned int found;
+    ps_bool_t found;
 } ps_regex_t;
 
 

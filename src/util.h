@@ -13,6 +13,8 @@
 
 typedef int ps_status_t;
 
+typedef int ps_bool_t;
+
 /*
  * Error codes
  */
@@ -27,6 +29,7 @@ typedef int ps_status_t;
 #define PS_ERROR_FAILED_TO_OPEN_FILE ( 201 )
 #define PS_ERROR_FAILED_TO_SEEK ( 202 )
 #define PS_ERROR_FAILED_TO_CALC_SIZE ( 203 )
+#define PS_ERROR_CHUNCK_TO_SHORT ( 204 )
 
 // Regex
 #define PS_ERROR_REGEX_FOUND_IS_FALSE ( 301 )
@@ -68,6 +71,11 @@ typedef int ps_status_t;
 
 #define PS_MALLOC(PTR, SIZE) {            \
     PTR = malloc(SIZE);                   \
+    PS_CHECK_PTR_AND_GOTO_ERROR(PTR)      \
+}
+
+#define PS_REALLOC(PTR, SIZE) {            \
+    PTR = realloc(PTR, SIZE);                   \
     PS_CHECK_PTR_AND_GOTO_ERROR(PTR)      \
 }
 

@@ -16,8 +16,8 @@ typedef struct ps_search_task{
 typedef struct ps_searcher_t
 {
     ps_regex_t* regex;
-
     ps_search_task_t* task;
+    ps_bool_t error;
 
 } ps_searcher_t;
 
@@ -30,7 +30,8 @@ ps_status_t
 ps_file_searcher_free(ps_searcher_t** searcher);
 
 int
-ps_file_searcher_search(ps_searcher_t* seacher);
+ps_file_searcher_search(ps_searcher_t* seacher,
+                        char** result);
 
 
 ps_status_t
