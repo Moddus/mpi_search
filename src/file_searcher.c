@@ -52,21 +52,21 @@ ps_status_t
 ps_searcher_task_create(ps_search_task_t **task,
                         unsigned long offset,
                         unsigned long size,
-                        unsigned long filename_len,
-                        char* filename)
+                        unsigned long path_len,
+                        char* path)
 {
     ps_status_t rv = PS_SUCCESS;
 
     log_debug("%s:begin", __func__);
-    PS_MALLOC(*task, sizeof(char) * filename_len + sizeof(ps_search_task_t));
+    PS_MALLOC(*task, sizeof(char) * path_len + sizeof(ps_search_task_t));
 
     (*task)->offset = offset;
     (*task)->size = size;
-    (*task)->filename_len = filename_len;
+    (*task)->path_len = path_len;
 
     PS_COMP(
-        strlcpy((*task)->filename, filename, filename_len + 1), /*+1 for \n*/
-        filename_len,
+        strlcpy((*task)->path, path, path_len + 1), /*+1 for \n*/
+        path_len,
         PS_ERROR_COPY);
     log_debug("%s:end", __func__);
 

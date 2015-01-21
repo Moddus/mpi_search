@@ -29,7 +29,7 @@ CreateAndFree(CuTest* tc)
 
     CuAssertPtrNotNull(tc, searcher);
     CuAssertStrEquals(tc, "foobar", searcher->regex->regex);
-    CuAssertStrEquals(tc, file_path, searcher->task->filename);
+    CuAssertStrEquals(tc, file_path, searcher->task->path);
 
     TEST_CHECK(tc, ps_file_searcher_free(&searcher));
     CuAssertPtrEquals(tc, NULL, searcher);

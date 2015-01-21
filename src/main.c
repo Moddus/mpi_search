@@ -18,11 +18,11 @@ main(int argc, char *argv[])
 {
     ps_status_t rv = PS_SUCCESS;
     int log_level = LOG_LEVEL_NONE;
-    char *search = NULL, *filename = NULL;
+    char *search = NULL, *path = NULL;
     int i = 0, c = 0;
     int number_of_procs = 0, own_rank = 0;
     ps_search_task_t *task = NULL;
-    int *slave_procs = NULL;
+    int *slave_nodes = NULL;
 
     out_fd = stdout; /*For Logging*/
 
@@ -44,7 +44,7 @@ main(int argc, char *argv[])
                 log_level = LOG_LEVEL_DEBUG;
                 break;
             case 'f':
-                filename = optarg;
+                path = optarg;
                 break;
             case 's':
                 search = optarg;
@@ -65,7 +65,7 @@ main(int argc, char *argv[])
         }
 
         set_log_level(log_level);
-        log_debug("search = %s, filename = %s", search, filename);
+        log_debug("search = %s, path = %s", search, path);
 
         for (i = optind; i < argc; i++)
         {
@@ -74,24 +74,24 @@ main(int argc, char *argv[])
         /*-------------------Processing of arguments done!-----------*/
     }
 
-    PS_MPI_CHECK_ERR(MPI_Bcast(&log_level, 1, MPI_INT, MASTER, MPI_COMM_WORLD));
-            
     /*Communicate log_level*/
-    if(own_rank == MASTER)
+    PS_MPI_CHECK_ERR(MPI_Bcast(&log_level, 1, MPI_INT, MASTER, MPI_COMM_WORLD));
+
+    if (own_rank == MASTER)
     {
         log_debug("Number of procs:%d", number_of_procs);
-        PS_MALLOC( slave_procs, sizeof(int) * (number_of_procs - 1));
+        PS_MALLOC( slave_nodes, sizeof(int) * (number_of_procs));
         for (i = 0; i < number_of_procs - 1; i++)
         {
-            slave_procs[i] = i + 1;
+            slave_nodes[i] = i + 1;
         }
 
-        PS_CHECK_GOTO_ERROR( distribute_filename_and_search_range(filename, number_of_procs - 1,
-                             slave_procs, MPI_COMM_WORLD, &task));
+        PS_CHECK_GOTO_ERROR( distribute_path_and_search_range(path, number_of_procs ,
+                             slave_nodes, MPI_COMM_WORLD, &task));
     }
     else
     {
-        /*Slaves receive filename_length and search_task*/
+        /*Slaves receive path_length and search_task*/
         set_log_level(log_level);
 
         PS_CHECK_GOTO_ERROR( recv_task(&task, own_rank, MASTER, MPI_COMM_WORLD));
@@ -103,14 +103,14 @@ main(int argc, char *argv[])
 
     MPI_Finalize();
 
-    PS_FREE(slave_procs);
+    PS_FREE(slave_nodes);
     PS_FREE(task);
     return EXIT_SUCCESS;
     /*-----------------ERROR-Handling------------------------------*/
 error:
 
     MPI_Finalize();
-    PS_FREE(slave_procs);
+    PS_FREE(slave_nodes);
     PS_FREE(task);
     return rv;
 }

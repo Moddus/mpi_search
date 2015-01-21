@@ -7,10 +7,10 @@
 typedef struct ps_search_task{
     /*Defines the area to search in*/
     unsigned long offset, size;
-    /*Length of filename*/
-    unsigned int filename_len;
+    /*Length of path*/
+    unsigned int path_len;
     /*Filename of the file, that should be searched*/
-    char filename[];
+    char path[];
 } ps_search_task_t;
 
 typedef struct ps_searcher_t
