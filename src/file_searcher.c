@@ -7,7 +7,7 @@
 #include "util.h"
 #include "log.h"
 
-#define BUFFER_SIZE ( 1000 )
+#define BUFFER_SIZE ( 10000 )
 
 static void
 ps_file_searcher_task_debug(ps_searcher_t *searcher)
@@ -71,8 +71,7 @@ ps_file_searcher_search(ps_searcher_t* searcher,
     unsigned long read_limit = 0;
     unsigned long read_count = 0;
     // get enougth space to read
-    unsigned int buffer_len = BUFFER_SIZE;
-    char buffer[buffer_len];
+    char buffer[BUFFER_SIZE];
     unsigned int result_len = 0;
     unsigned int result_free_space = BUFFER_SIZE;
     log_debug("%s:begin", __func__);
@@ -110,7 +109,7 @@ ps_file_searcher_search(ps_searcher_t* searcher,
     }
     log_debug("%s:current offset:%lu", __func__, fseek(file, 0, SEEK_CUR));
 
-    while ( fgets(buffer, buffer_len, file) != NULL )
+    while ( fgets(buffer, BUFFER_SIZE, file) != NULL )
     {
         unsigned int line_len = 0;
         log_debug("%s:begin loop", __func__);
@@ -123,22 +122,22 @@ ps_file_searcher_search(ps_searcher_t* searcher,
             break;
         }
 
-        log_debug("%s: find it", __func__);
+        log_debug("%s: go and find it", __func__);
         PS_CHECK_GOTO_ERROR(ps_regex_find(searcher->regex, buffer, 0));
         if (searcher->regex->found == TRUE)
         {
-            log_debug("%s:found someting", __func__);
+            log_debug("%s:found something", __func__);
             if (result_free_space < line_len)
             {
                 log_debug("%s: buffer gets realloced", __func__);
                 PS_REALLOC(*result, sizeof(char) * (result_len + BUFFER_SIZE));
             }
 
-            strncpy((*result) + result_len, buffer, line_len);
+            strncpy(((*result) + result_len), buffer, line_len);
             log_debug("%s: line copied to result", __func__);
             result_free_space -= line_len;
             result_len += line_len;
-            log_debug("%s: new result_len:%u result_free_space:%u", __func__, result_len, result_free_space);
+            log_debug("%s: new result_len:%u result_free_space:%u result:%s", __func__, result_len, result_free_space, *result);
         }
     }
 
