@@ -42,6 +42,7 @@ SearchTest(CuTest* tc)
     ps_searcher_t* searcher = NULL;
     ps_search_task_t* task = NULL;
     char* result;
+    size_t result_len;
 
     TEST_CHECK(tc, ps_searcher_task_create(&task,
                                             0,
@@ -53,7 +54,7 @@ SearchTest(CuTest* tc)
                                             "foobar",
                                             task));
 
-    TEST_CHECK(tc, ps_file_searcher_search(searcher, &result));
+    TEST_CHECK(tc, ps_file_searcher_search(searcher, &result, &result_len));
 
     CuAssertStrEquals(tc, "foo;bar;foobar\n", result);
 }
