@@ -31,7 +31,7 @@ ps_file_searcher_free(ps_searcher_t** searcher);
 
 int
 ps_file_searcher_search(ps_searcher_t* seacher,
-                        char** result);
+                        char** result, size_t *result_len);
 
 
 ps_status_t

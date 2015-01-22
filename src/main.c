@@ -99,26 +99,38 @@ main(int argc, char *argv[])
 
         PS_CHECK_GOTO_ERROR( distribute_path_and_search_range(path, number_of_procs ,
                              slave_nodes, MPI_COMM_WORLD, &task));
-        //fprintf(stdout, "%s", result);
+
+        /*Slaves receive path_length and search_task*/
+        ps_searcher_t *searcher;
+        char *result = NULL;
+        size_t result_len = 0;
+
+        PS_CHECK_GOTO_ERROR(ps_file_searcher_create(&searcher, search, task));
+        PS_CHECK_GOTO_ERROR(ps_file_searcher_search(searcher, &result, &result_len));
+        log_debug("Process %d: result_len: %lu result:%s", own_rank, result_len, result);
+        write(STDOUT_FILENO, result, result_len);
+        //PS_CHECK_GOTO_ERROR(ps_file_searcher_free(&searcher));
     }
     else
     {
         /*Slaves receive path_length and search_task*/
         ps_searcher_t *searcher;
         char *result = NULL;
+        size_t result_len = 0;
 
         PS_CHECK_GOTO_ERROR( recv_task(&task, own_rank, MASTER, MPI_COMM_WORLD));
 
         PS_CHECK_GOTO_ERROR(ps_file_searcher_create(&searcher, search, task));
-        PS_CHECK_GOTO_ERROR(ps_file_searcher_search(searcher, &result));
+        PS_CHECK_GOTO_ERROR(ps_file_searcher_search(searcher, &result, &result_len));
+        log_debug("Process %d: result_len: %lu result:%s", own_rank, result_len, result);
+        write(STDOUT_FILENO, result, result_len);
         //PS_CHECK_GOTO_ERROR(ps_file_searcher_free(&searcher));
-        log_debug("%d:result:%s", own_rank, result);
     }
 
     log_debug("Process %d finished", own_rank);
     MPI_Finalize();
 
-    if(own_rank != MASTER)
+    if (own_rank != MASTER)
     {
         PS_FREE(search);
     }
@@ -131,7 +143,7 @@ error:
 
     MPI_Finalize();
 
-    if(own_rank != MASTER)
+    if (own_rank != MASTER)
     {
         PS_FREE(search);
     }

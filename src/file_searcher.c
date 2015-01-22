@@ -65,17 +65,17 @@ ps_file_searcher_free(ps_searcher_t** searcher)
 
 ps_status_t
 ps_file_searcher_search(ps_searcher_t* searcher,
-                        char** result)
+                        char** result, size_t *result_len)
 {
     ps_status_t rv = PS_SUCCESS;
     unsigned long read_limit = 0;
     unsigned long read_count = 0;
     // get enougth space to read
     char buffer[BUFFER_SIZE];
-    size_t result_len = 0;
     size_t result_free_space = BUFFER_SIZE;
     log_debug("%s:begin", __func__);
 
+    *result_len = 0;
     ps_file_searcher_task_debug(searcher);
 
     read_limit = searcher->task->size;
@@ -126,15 +126,15 @@ ps_file_searcher_search(ps_searcher_t* searcher,
             log_debug("%s:found something", __func__);
             if (result_free_space < line_len)
             {
-                log_debug("%s: buffer gets realloced new size:%lu", __func__, sizeof(char) * (result_len +  BUFFER_SIZE));
-                PS_REALLOC(*result, sizeof(char) * (result_len + BUFFER_SIZE));
+                log_debug("%s: buffer gets realloced new size:%lu", __func__, sizeof(char) * (*result_len +  BUFFER_SIZE));
+                PS_REALLOC(*result, sizeof(char) * (*result_len + BUFFER_SIZE));
                 result_free_space = BUFFER_SIZE; 
             }
 
-            strncpy((*result) + result_len, buffer, line_len);
+            strncpy((*result) + *result_len, buffer, line_len);
             result_free_space -= line_len;
-            result_len += line_len;
-            log_debug("%s: new result_len:%u result_free_space:%u", __func__, result_len, result_free_space);
+            *result_len += line_len;
+            log_debug("%s: new result_len:%u result_free_space:%u", __func__, *result_len, result_free_space);
         }
     }
 
