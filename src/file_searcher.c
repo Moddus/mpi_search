@@ -37,6 +37,7 @@ ps_file_searcher_create(ps_searcher_t** searcher,
     log_debug("%s:begin", __func__);
     PS_MALLOC(*searcher, sizeof(ps_searcher_t));
     PS_CHECK_GOTO_ERROR(ps_regex_create(&regex, search));
+    log_debug("%s:ps_regex_created", __func__);
 
     (*searcher)->regex = regex;
     (*searcher)->task = task;
@@ -55,9 +56,7 @@ ps_file_searcher_free(ps_searcher_t** searcher)
 {
     log_debug("%s:begin", __func__);
     ps_regex_free((*searcher)->regex);
-    log_debug("2");
     ps_searcher_task_free((*searcher)->task);
-    log_debug("3");
     PS_FREE(*searcher);
 
     log_debug("%s:end", __func__);
@@ -81,24 +80,23 @@ ps_file_searcher_search(ps_searcher_t* searcher,
     ps_file_searcher_task_debug(searcher);
 
     read_limit = searcher->task->size;
-    log_debug("%s:1", __func__);
+    log_debug("%s:read_limit:%lu", __func__, read_limit);
 
     PS_MALLOC(*result, sizeof(char) * BUFFER_SIZE);
-    log_debug("%s:2", __func__);
 
     // open file
     FILE *file = fopen(searcher->task->path, "r");
     if ( NULL == file )
     {
+        log_err("%s: could not open file", __func__);
         return PS_ERROR_FAILED_TO_OPEN_FILE;
     }
-    // seek to osition
-    log_debug("%s:3", __func__);
+    // seek to position
     fseek(file, searcher->task->offset, SEEK_CUR);
+    log_debug("%s:seeked to start-position: %lu", __func__, searcher->task->offset);
 
     // move to next line break
     char c;
-    log_debug("%s:4", __func__);
     while ( ( c = getc(file) ) != EOF )
     {
         read_count++;
@@ -110,33 +108,34 @@ ps_file_searcher_search(ps_searcher_t* searcher,
         if (c == '\n')
             break;
     }
-    log_debug("%s:5", __func__);
+    log_debug("%s:current offset:%lu", __func__, fseek(file, 0, SEEK_CUR));
 
     while ( fgets(buffer, buffer_len, file) != NULL )
     {
         unsigned int line_len = strlen(buffer) + 1;
+        log_debug("%s:line_len:%u", __func__, line_len);
         read_count += line_len;
         if (read_count > read_limit)
+        {
+            log_debug("%s:searching done at:%lu", __func__, fseek(file, 0, SEEK_CUR));
             break;
+        }
 
-        log_debug("%s:6", __func__);
         PS_CHECK_GOTO_ERROR(ps_regex_find(searcher->regex, buffer, 0));
         if (searcher->regex->found == TRUE)
         {
-            log_debug("found someting");
+            log_debug("%s:found someting", __func__);
             if (result_free_space < line_len)
             {
-                log_debug("%s:7", __func__);
-                PS_REALLOC(*result, sizeof(char) * BUFFER_SIZE);
-                log_debug("%s:8", __func__);
+                log_debug("%s: buffer gets realloced", __func__);
+                PS_REALLOC(*result, sizeof(char) * (result_len + BUFFER_SIZE));
             }
 
-            log_debug("%s:9", __func__);
             strncpy((*result) + result_len, buffer, line_len);
-            log_debug("%s:10", __func__);
+            log_debug("%s: line copied to result", __func__);
             result_free_space -= line_len;
-            log_debug("%s:11", __func__);
             result_len += line_len;
+            log_debug("%s: new result_len:%u result_free_space:%u", __func__, result_len, result_free_space);
         }
     }
 
@@ -166,10 +165,8 @@ ps_searcher_task_create(ps_search_task_t **task,
     (*task)->size = size;
     (*task)->path_len = path_len;
 
-    PS_COMP(
-        strlcpy((*task)->path, path, path_len + 1), /*+1 for \n*/
-        path_len,
-        PS_ERROR_COPY);
+    strncpy((*task)->path, path, path_len + 1);
+
     log_debug("%s:end", __func__);
 
     return rv;

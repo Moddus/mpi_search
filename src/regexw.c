@@ -14,31 +14,26 @@ ps_regex_create(ps_regex_t** re, char* regex)
     PS_MALLOC(*re, sizeof(ps_regex_t));
     (*re)->regex = regex;
     (*re)->error_offset = 0;
-    log_debug("%s:-1", __func__);
     (*re)->regex_compiled = pcre_compile((*re)->regex, 0,
                                          &(*re)->error,
                                          &(*re)->error_offset, NULL);
     (*re)->found = FALSE;
 
-    log_debug("%s:0", __func__);
     if((*re)->regex_compiled == NULL)
     {
         rv = PS_ERROR_OBJ_CREATE;
         goto error;
     }
 
-    log_debug("%s:1", __func__);
     (*re)->pcre_extra = pcre_study( (*re)->regex_compiled,
                                     0,
                                     &(*re)->error);
-    log_debug("%s:2", __func__);
 
     if((*re)->pcre_extra == NULL)
     {
         rv = PS_ERROR_OBJ_CREATE;
         goto error;
     }
-    log_debug("%s:3", __func__);
 
     log_debug("%s:end", __func__);
     return rv;
@@ -53,7 +48,10 @@ ps_regex_find(ps_regex_t* re,
               const char* content,
               unsigned int content_offset)
 {
-    int pcre_exec_ret = pcre_exec(re->regex_compiled,
+    int pcre_exec_ret = 0;
+
+    log_debug("%s:begin", __func__);
+    pcre_exec_ret = pcre_exec(re->regex_compiled,
                                   re->pcre_extra,
                                   content,
                                   strlen(content),
@@ -74,6 +72,7 @@ ps_regex_find(ps_regex_t* re,
         re->found = TRUE;
     }
 
+    log_debug("%s:end", __func__);
     return PS_SUCCESS;
 }
 
@@ -96,16 +95,13 @@ ps_status_t
 ps_regex_free(ps_regex_t* re)
 {
     log_debug("%s:begin",__func__);
-    log_debug("%s:pcre_free",__func__);
     pcre_free(re->regex_compiled);
-    log_debug("%s:pcre_free_etra",__func__);
     pcre_free(re->pcre_extra);
 
     re->regex_compiled = NULL;
     re->pcre_extra = NULL;
 
     log_debug("%s:end",__func__);
-
     return PS_SUCCESS;
 }
 
