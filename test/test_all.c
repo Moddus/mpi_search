@@ -11,7 +11,7 @@ void RunAllTests(void)
     CuString *output = CuStringNew();
     CuSuite* suite = CuSuiteNew();
 
-#if 1
+#if 0
     CuSuiteAddSuite(suite, make_regex_suite());
     CuSuiteAddSuite(suite, make_csv_suite());
     CuSuiteAddSuite(suite, make_file_searcher_suite());

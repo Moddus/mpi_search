@@ -127,7 +127,8 @@ ps_file_searcher_search(ps_searcher_t* searcher,
         PS_CHECK_GOTO_ERROR(ps_regex_find(searcher->regex, buffer, 0));
         if (searcher->regex->found == TRUE)
         {
-            log_debug("%s:found someting", __func__);
+            log_debug("__________________________________ %s found someting -> buffer: %s", __func__, buffer);
+           /*
             if (result_free_space < line_len)
             {
                 log_debug("%s: buffer gets realloced", __func__);
@@ -139,6 +140,7 @@ ps_file_searcher_search(ps_searcher_t* searcher,
             result_free_space -= line_len;
             result_len += line_len;
             log_debug("%s: new result_len:%u result_free_space:%u", __func__, result_len, result_free_space);
+            */
         }
     }
 
