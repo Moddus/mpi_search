@@ -112,7 +112,9 @@ ps_file_searcher_search(ps_searcher_t* searcher,
 
     while ( fgets(buffer, buffer_len, file) != NULL )
     {
-        unsigned int line_len = strlen(buffer) + 1;
+        unsigned int line_len = 0;
+        log_debug("%s:begin loop", __func__);
+        line_len = strlen(buffer) + 1;
         log_debug("%s:line_len:%u", __func__, line_len);
         read_count += line_len;
         if (read_count > read_limit)
@@ -121,6 +123,7 @@ ps_file_searcher_search(ps_searcher_t* searcher,
             break;
         }
 
+        log_debug("%s: find it", __func__);
         PS_CHECK_GOTO_ERROR(ps_regex_find(searcher->regex, buffer, 0));
         if (searcher->regex->found == TRUE)
         {

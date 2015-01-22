@@ -111,7 +111,7 @@ main(int argc, char *argv[])
 
         PS_CHECK_GOTO_ERROR(ps_file_searcher_create(&searcher, search, task));
         PS_CHECK_GOTO_ERROR(ps_file_searcher_search(searcher, &result));
-        PS_CHECK_GOTO_ERROR(ps_file_searcher_free(&searcher));
+        //PS_CHECK_GOTO_ERROR(ps_file_searcher_free(&searcher));
         log_debug("%d:result:%s", own_rank, result);
     }
 

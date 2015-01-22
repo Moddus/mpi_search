@@ -64,8 +64,6 @@ ps_regex_find(ps_regex_t* re,
     {
         re->error_code = pcre_exec_ret;
         re->found = FALSE;
-
-        return PS_SUCCESS;
     }
     else
     {
