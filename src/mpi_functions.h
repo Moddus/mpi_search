@@ -1,5 +1,5 @@
 #ifndef MPI_FUNCTIONS_H
-#define MPI_FUNCTIONS_H 
+#define MPI_FUNCTIONS_H
 
 #include <mpi.h>
 
@@ -21,10 +21,11 @@
  * @master_task task for the master_process, has to be null
  */
 int
-distribute_path_and_search_range(char *path, int number_of_procs,
-                                     int *slave_proc_numbers,
-                                     MPI_Comm comm,
-                                     ps_search_task_t **master_task);
+distribute_path_and_search_range(char *path,
+                                 int number_of_procs,
+                                 int *slave_proc_numbers,
+                                 MPI_Comm comm,
+                                 ps_search_task_t **master_task);
 
 
 int

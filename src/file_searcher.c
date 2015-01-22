@@ -154,7 +154,7 @@ ps_status_t
 ps_searcher_task_create(ps_search_task_t **task,
                         unsigned long offset,
                         unsigned long size,
-                        unsigned long path_len,
+                        unsigned int path_len,
                         char* path)
 {
     ps_status_t rv = PS_SUCCESS;

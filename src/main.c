@@ -19,6 +19,7 @@ main(int argc, char *argv[])
     ps_status_t rv = PS_SUCCESS;
     int log_level = LOG_LEVEL_NONE;
     char *search = NULL, *path = NULL;
+    unsigned int search_len = 0;
     int i = 0, c = 0;
     int number_of_procs = 0, own_rank = 0;
     ps_search_task_t *task = NULL;
@@ -48,6 +49,7 @@ main(int argc, char *argv[])
                 break;
             case 's':
                 search = optarg;
+                search_len = strlen(search);
                 break;
             case 'h':
             default:
@@ -63,22 +65,31 @@ main(int argc, char *argv[])
                 goto error;
             }
         }
+    }
 
-        set_log_level(log_level);
+    /*Communicate and set log_level*/
+    PS_MPI_CHECK_ERR(MPI_Bcast(&log_level, 1, MPI_INT, MASTER, MPI_COMM_WORLD));
+    set_log_level(log_level);
+
+    /*Communicate the token to search for*/
+    PS_MPI_CHECK_ERR(MPI_Bcast(&search_len, 1, MPI_UNSIGNED, MASTER, MPI_COMM_WORLD));
+    if (own_rank != MASTER)
+    {
+        PS_MALLOC(search, sizeof(char) * (search_len + 1));
+    }
+    PS_MPI_CHECK_ERR(MPI_Bcast(search, search_len + 1, MPI_CHAR, MASTER, MPI_COMM_WORLD));
+    log_debug("Process %d: search_len:%u search:%s", own_rank, search_len, search);
+
+    if (own_rank == MASTER)
+    {
         log_debug("search = %s, path = %s", search, path);
 
         for (i = optind; i < argc; i++)
         {
             log_debug("Non-option argument %s", argv[i]);
         }
+
         /*-------------------Processing of arguments done!-----------*/
-    }
-
-    /*Communicate log_level*/
-    PS_MPI_CHECK_ERR(MPI_Bcast(&log_level, 1, MPI_INT, MASTER, MPI_COMM_WORLD));
-
-    if (own_rank == MASTER)
-    {
         log_debug("Number of procs:%d", number_of_procs);
         PS_MALLOC( slave_nodes, sizeof(int) * (number_of_procs));
         for (i = 0; i < number_of_procs - 1; i++)
@@ -88,37 +99,43 @@ main(int argc, char *argv[])
 
         PS_CHECK_GOTO_ERROR( distribute_path_and_search_range(path, number_of_procs ,
                              slave_nodes, MPI_COMM_WORLD, &task));
+        //fprintf(stdout, "%s", result);
     }
     else
     {
         /*Slaves receive path_length and search_task*/
-        set_log_level(log_level);
-        ps_searcher_t *searcher; 
+        ps_searcher_t *searcher;
         char *result = NULL;
 
         PS_CHECK_GOTO_ERROR( recv_task(&task, own_rank, MASTER, MPI_COMM_WORLD));
 
-        log_debug("vorher:%d", own_rank);
-        PS_CHECK_GOTO_ERROR(ps_file_searcher_create(&searcher, "SSL", task));
-        log_debug("nachher:%d", own_rank);
+        PS_CHECK_GOTO_ERROR(ps_file_searcher_create(&searcher, search, task));
         PS_CHECK_GOTO_ERROR(ps_file_searcher_search(searcher, &result));
         PS_CHECK_GOTO_ERROR(ps_file_searcher_free(&searcher));
-//        log_debug("%d:result:%s", own_rank, result);
+        log_debug("%d:result:%s", own_rank, result);
     }
 
     log_debug("Process %d finished", own_rank);
-
-    /*TODO: Entfernen*/
-    MPI_Barrier(MPI_COMM_WORLD);
     MPI_Finalize();
 
-//    PS_FREE(slave_nodes);
-//    PS_FREE(task);
+    if(own_rank != MASTER)
+    {
+        PS_FREE(search);
+    }
+
+    PS_FREE(slave_nodes);
+    PS_FREE(task);
     return EXIT_SUCCESS;
     /*-----------------ERROR-Handling------------------------------*/
 error:
 
     MPI_Finalize();
+
+    if(own_rank != MASTER)
+    {
+        PS_FREE(search);
+    }
+
     PS_FREE(slave_nodes);
     PS_FREE(task);
     return rv;

@@ -17,14 +17,14 @@ distribute_path_and_search_range(char *path,
     ps_status_t rv = PS_SUCCESS;
     unsigned long total_filesize = 0, search_range_size = 0, master_search_range_size = 0;
     ps_search_task_t **slave_tasks = NULL;
-    unsigned int path_len = strlen(path), number_of_slaves = number_of_procs - 1;
+    unsigned int path_len = 0, number_of_slaves = 0;
     unsigned int i = 0;
     size_t search_task_mem_size = 0;
     MPI_Request *requests = NULL;
 
     log_debug("%s:begin. number_of_procs:%d number_of_slaves:%d", __func__, number_of_procs, number_of_slaves);
 
-    if (path == NULL || number_of_procs < 1 || *master_task != NULL)
+    if (!path || number_of_procs < 1 || *master_task)
     {
         log_err("wrong arguments in distribute_path_and_search_range: \
                  path=%s, number_of_procs:%d, master_task:%p",
@@ -32,10 +32,14 @@ distribute_path_and_search_range(char *path,
         rv = PS_ERROR_WRONG_ARGUMENTS;
         goto error;
     }
+    path_len = strlen(path);
+    number_of_slaves = number_of_procs - 1;
+    log_debug("%s: path_len:%u number_of_slaves:%u", __func__, path_len, number_of_slaves);
 
     search_task_mem_size = sizeof(char) * path_len + sizeof(ps_search_task_t);
 
     PS_CHECK_GOTO_ERROR(get_filesize(path, &total_filesize));
+    log_debug("%s: total_filesize:%lu", __func__, total_filesize);
 
     search_range_size = total_filesize / number_of_procs;
 
@@ -48,7 +52,7 @@ distribute_path_and_search_range(char *path,
     PS_CHECK_GOTO_ERROR( ps_searcher_task_create(master_task,
                          number_of_slaves * search_range_size,
                          master_search_range_size,
-                         path_len, path));
+                         path_len, path ));
 
     PS_MALLOC(slave_tasks, sizeof(ps_search_task_t*) * number_of_slaves);
 

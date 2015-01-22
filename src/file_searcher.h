@@ -38,7 +38,7 @@ ps_status_t
 ps_searcher_task_create(ps_search_task_t **task,
                              unsigned long offset,
                              unsigned long size,
-                             unsigned long filename_len,
+                             unsigned int filename_len,
                              char* filename);
 
 ps_status_t
