@@ -72,8 +72,8 @@ ps_file_searcher_search(ps_searcher_t* searcher,
     unsigned long read_count = 0;
     // get enougth space to read
     char buffer[BUFFER_SIZE];
-    unsigned int result_len = 0;
-    unsigned int result_free_space = BUFFER_SIZE;
+    size_t result_len = 0;
+    size_t result_free_space = BUFFER_SIZE;
     log_debug("%s:begin", __func__);
 
     ps_file_searcher_task_debug(searcher);
@@ -111,9 +111,7 @@ ps_file_searcher_search(ps_searcher_t* searcher,
 
     while ( fgets(buffer, BUFFER_SIZE, file) != NULL )
     {
-        unsigned int line_len = 0;
-        log_debug("%s:begin loop", __func__);
-        line_len = strlen(buffer) + 1;
+        size_t line_len = line_len = strlen(buffer) + 1;
         log_debug("%s:line_len:%u", __func__, line_len);
         read_count += line_len;
         if (read_count > read_limit)
@@ -122,22 +120,21 @@ ps_file_searcher_search(ps_searcher_t* searcher,
             break;
         }
 
-        log_debug("%s: go and find it", __func__);
         PS_CHECK_GOTO_ERROR(ps_regex_find(searcher->regex, buffer, 0));
         if (searcher->regex->found == TRUE)
         {
             log_debug("%s:found something", __func__);
             if (result_free_space < line_len)
             {
-                log_debug("%s: buffer gets realloced", __func__);
+                log_debug("%s: buffer gets realloced new size:%lu", __func__, sizeof(char) * (result_len +  BUFFER_SIZE));
                 PS_REALLOC(*result, sizeof(char) * (result_len + BUFFER_SIZE));
+                result_free_space = BUFFER_SIZE; 
             }
 
-            strncpy(((*result) + result_len), buffer, line_len);
-            log_debug("%s: line copied to result", __func__);
+            strncpy((*result) + result_len, buffer, line_len);
             result_free_space -= line_len;
             result_len += line_len;
-            log_debug("%s: new result_len:%u result_free_space:%u result:%s", __func__, result_len, result_free_space, *result);
+            log_debug("%s: new result_len:%u result_free_space:%u", __func__, result_len, result_free_space);
         }
     }
 
@@ -155,7 +152,7 @@ ps_status_t
 ps_searcher_task_create(ps_search_task_t **task,
                         unsigned long offset,
                         unsigned long size,
-                        unsigned int path_len,
+                        size_t path_len,
                         char* path)
 {
     ps_status_t rv = PS_SUCCESS;

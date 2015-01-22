@@ -19,7 +19,7 @@ main(int argc, char *argv[])
     ps_status_t rv = PS_SUCCESS;
     int log_level = LOG_LEVEL_NONE;
     char *search = NULL, *path = NULL;
-    unsigned int search_len = 0;
+    size_t search_len = 0;
     int i = 0, c = 0;
     int number_of_procs = 0, own_rank = 0;
     ps_search_task_t *task = NULL;
@@ -72,7 +72,7 @@ main(int argc, char *argv[])
     set_log_level(log_level);
 
     /*Communicate the token to search for*/
-    PS_MPI_CHECK_ERR(MPI_Bcast(&search_len, 1, MPI_UNSIGNED, MASTER, MPI_COMM_WORLD));
+    PS_MPI_CHECK_ERR(MPI_Bcast(&search_len, 1, MPI_UNSIGNED_LONG, MASTER, MPI_COMM_WORLD));
     if (own_rank != MASTER)
     {
         PS_MALLOC(search, sizeof(char) * (search_len + 1));
