@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "regex.h"
 #include "file_searcher.h"
@@ -70,11 +71,10 @@ ps_file_searcher_search(ps_searcher_t* searcher,
                         char** result, size_t *result_len)
 {
     ps_status_t rv = PS_SUCCESS;
-    unsigned long read_limit = 0;
-    unsigned long total_read_count = 0;
+    size_t read_limit = 0, total_read_count = 0, processed_bytes = 0;
     // get enougth space to read
     char *buffer = NULL;
-    size_t processed_bytes = 0, buffer_offset = 0, buffer_fillsize = 0;
+    size_t buffer_offset = 0, buffer_fillsize = 0;
     size_t bytes_read = 0;
 
     log_debug("%s:begin", __func__);
@@ -113,36 +113,40 @@ ps_file_searcher_search(ps_searcher_t* searcher,
         if (c == '\n')
             break;
     }
-    log_debug("%s:current offset:%lu total_read_count:%lu", __func__, fseek(file, 0, SEEK_CUR), total_read_count);
+    log_debug("%s:total_read_count:%lu", __func__, total_read_count);
 
-    while ( (bytes_read = fread(buffer + buffer_offset, sizeof(char),
-            MAX_BYTES_TO_READ - buffer_offset, file)) > 0)
+    while ( (bytes_read = fread(buffer + buffer_fillsize, sizeof(char),
+            MAX_BYTES_TO_READ - buffer_fillsize, file)) > 0)
     {
         char *search_start = NULL, *line_end = NULL;
 
-//        buffer_fillsize = buffer_offset + bytes_read;
-//        search_start = buffer;
-//        log_debug("%s:buffer_offest:%lu bytes_read:%lu total_read_count:%lu, buffer_fillsize:%lu",
-//                  __func__, buffer_offset, bytes_read, total_read_count, buffer_fillsize);
-//
-//        while ( (buffer_fillsize > 0) && (line_end = memchr(search_start, '\n', buffer_fillsize)))
-//        {
-//            ssize_t line_len = line_end - search_start;
-//            buffer_fillsize -= (line_len + 1);
+        processed_bytes = 0;
+        buffer_fillsize += bytes_read;
+        search_start = buffer;
+        log_debug("%s:buffer_offest:%lu bytes_read:%lu total_read_count:%lu, buffer_fillsize:%lu",
+                  __func__, buffer_offset, bytes_read, total_read_count, buffer_fillsize);
+
+        while ( (buffer_fillsize > 0) && (line_end = memchr(search_start, '\n', buffer_fillsize)))
+        {
+            ssize_t line_len = line_end - search_start;
+            buffer_fillsize -= (line_len + 1);
 //            PS_CHECK_GOTO_ERROR(ps_regex_find(searcher->regex, buffer, line_len, 0));
-//            search_start = line_end + 1;
-//        }
-//
-//        total_read_count += (search_start - buffer);
-//        if(total_read_count > searcher->task->size){
-//            break;
-//        }
+            search_start = line_end + 1;
+            processed_bytes += line_len + 1;
+        }
+
+        total_read_count += processed_bytes;
+        log_debug("%s:nothing more to read in buffer: bytes_read:%lu total_read_count:%lu buffer_fillsize:%lu"
+                , __func__, bytes_read, total_read_count, buffer_fillsize);
+
+        if( total_read_count >= read_limit){
+            log_debug("%s:search-task done", __func__);
+            break;
+        }
 
         buffer_offset = processed_bytes;
-        memmove(buffer, buffer +  buffer_offset, buffer_offset);
-        processed_bytes = 0;
+        memmove(buffer, buffer + buffer_offset, buffer_fillsize);
     }
-
 
     log_debug("%s:end", __func__);
     return rv;
@@ -153,8 +157,7 @@ error:
     PS_FREE(buffer);
 
     return rv;
-    return PS_SUCCESS;
-}
+    return PS_SUCCESS;}
 
 ps_status_t
 ps_searcher_task_create(ps_search_task_t **task,
