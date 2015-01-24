@@ -28,6 +28,7 @@ ps_regex_create(ps_regex_t** re, char* regex);
 ps_status_t
 ps_regex_find(ps_regex_t* re,
               const char* content,
+              size_t content_len,
               unsigned int content_offset);
 
 ps_status_t

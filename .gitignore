@@ -12,7 +12,7 @@ CMakeLists.txt.user
 #
 # Editors
 #
-
+.idea/
 MPISEACHER.cbp
 *.swp
 *.autosave
@@ -30,3 +30,5 @@ libs/
 #
 
 Testing/
+testfile
+

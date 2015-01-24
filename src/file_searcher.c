@@ -7,7 +7,9 @@
 #include "util.h"
 #include "log.h"
 
-#define BUFFER_SIZE ( 10000 )
+#define BUFFER_SIZE ( 50000 )
+
+#define MAX_BYTES_TO_READ ( 1024 * 1024 * 10)
 
 static void
 ps_file_searcher_task_debug(ps_searcher_t *searcher)
@@ -69,11 +71,14 @@ ps_file_searcher_search(ps_searcher_t* searcher,
 {
     ps_status_t rv = PS_SUCCESS;
     unsigned long read_limit = 0;
-    unsigned long read_count = 0;
+    unsigned long total_read_count = 0;
     // get enougth space to read
-    char buffer[BUFFER_SIZE];
-    size_t result_free_space = BUFFER_SIZE;
+    char *buffer = NULL;
+    size_t processed_bytes = 0, buffer_offset = 0, buffer_fillsize = 0;
+    size_t bytes_read = 0;
+
     log_debug("%s:begin", __func__);
+    PS_MALLOC(buffer, sizeof(char) * MAX_BYTES_TO_READ);
 
     *result_len = 0;
     ps_file_searcher_task_debug(searcher);
@@ -98,45 +103,46 @@ ps_file_searcher_search(ps_searcher_t* searcher,
     char c;
     while ( ( c = getc(file) ) != EOF )
     {
-        read_count++;
-        if (read_count > read_limit)
+        total_read_count++;
+        if (total_read_count > read_limit)
         {
+            //TODO: Remove because other host will check this line
             return PS_ERROR_CHUNCK_TO_SHORT;
         }
 
         if (c == '\n')
             break;
     }
-    log_debug("%s:current offset:%lu", __func__, fseek(file, 0, SEEK_CUR));
+    log_debug("%s:current offset:%lu total_read_count:%lu", __func__, fseek(file, 0, SEEK_CUR), total_read_count);
 
-    while ( fgets(buffer, BUFFER_SIZE, file) != NULL )
+    while ( (bytes_read = fread(buffer + buffer_offset, sizeof(char),
+            MAX_BYTES_TO_READ - buffer_offset, file)) > 0)
     {
-        size_t line_len = line_len = strlen(buffer) + 1;
-        log_debug("%s:line_len:%u", __func__, line_len);
-        read_count += line_len;
-        if (read_count > read_limit)
-        {
-            log_debug("%s:searching done at:%lu", __func__, fseek(file, 0, SEEK_CUR));
-            break;
-        }
+        char *search_start = NULL, *line_end = NULL;
 
-        PS_CHECK_GOTO_ERROR(ps_regex_find(searcher->regex, buffer, 0));
-        if (searcher->regex->found == TRUE)
-        {
-            log_debug("%s:found something", __func__);
-            if (result_free_space < line_len)
-            {
-                log_debug("%s: buffer gets realloced new size:%lu", __func__, sizeof(char) * (*result_len +  BUFFER_SIZE));
-                PS_REALLOC(*result, sizeof(char) * (*result_len + BUFFER_SIZE));
-                result_free_space = BUFFER_SIZE; 
-            }
+//        buffer_fillsize = buffer_offset + bytes_read;
+//        search_start = buffer;
+//        log_debug("%s:buffer_offest:%lu bytes_read:%lu total_read_count:%lu, buffer_fillsize:%lu",
+//                  __func__, buffer_offset, bytes_read, total_read_count, buffer_fillsize);
+//
+//        while ( (buffer_fillsize > 0) && (line_end = memchr(search_start, '\n', buffer_fillsize)))
+//        {
+//            ssize_t line_len = line_end - search_start;
+//            buffer_fillsize -= (line_len + 1);
+//            PS_CHECK_GOTO_ERROR(ps_regex_find(searcher->regex, buffer, line_len, 0));
+//            search_start = line_end + 1;
+//        }
+//
+//        total_read_count += (search_start - buffer);
+//        if(total_read_count > searcher->task->size){
+//            break;
+//        }
 
-            strncpy((*result) + *result_len, buffer, line_len);
-            result_free_space -= line_len;
-            *result_len += line_len;
-            log_debug("%s: new result_len:%u result_free_space:%u", __func__, *result_len, result_free_space);
-        }
+        buffer_offset = processed_bytes;
+        memmove(buffer, buffer +  buffer_offset, buffer_offset);
+        processed_bytes = 0;
     }
+
 
     log_debug("%s:end", __func__);
     return rv;
@@ -144,8 +150,10 @@ ps_file_searcher_search(ps_searcher_t* searcher,
 error:
     log_err("Error while searching: %d", rv);
     searcher->error = rv;
+    PS_FREE(buffer);
 
     return rv;
+    return PS_SUCCESS;
 }
 
 ps_status_t

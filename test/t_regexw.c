@@ -2,6 +2,7 @@
 #include <regexw.h>
 #include <pcre.h>
 #include <util.h>
+#include <string.h>
 
 #include "test_all.h"
 
@@ -26,14 +27,16 @@ TestCreateAndFree(CuTest* tc)
 void
 TestFind(CuTest* tc)
 {
+    char test_string[] = "This contains foobar !!!";
+    char test_string2[] = "This does not match.";
     ps_regex_t* re;
 
     ps_regex_create(&re, "foobar");
-    ps_regex_find(re, "This contains foobar !!!", 0);
+    ps_regex_find(re, test_string, strlen(test_string), 0);
 
     CuAssertIntEquals(tc, TRUE, re->found);
 
-    ps_regex_find(re, "This does not match.", 0);
+    ps_regex_find(re, test_string2, strlen(test_string2), 0);
 
     CuAssertIntEquals(tc, FALSE, re->found);
 }
