@@ -66,10 +66,11 @@ ps_file_searcher_free(ps_searcher_t** searcher)
 
 ps_status_t
 ps_file_searcher_search(ps_searcher_t* searcher,
-                        char** result, size_t *result_len)
+                        char** result,
+                        size_t *result_len)
 {
     ps_status_t rv = PS_SUCCESS;
-    char *buffer = NULL;
+    char *buffer = NULL, *result_c = NULL;
     size_t buffer_offset = 0, buffer_fillsize = 0, bytes_read = 0;
     unsigned long read_limit = 0, total_read_count = 0, processed_bytes = 0, read_chunk_size = 0;
 
@@ -85,6 +86,7 @@ ps_file_searcher_search(ps_searcher_t* searcher,
     log_debug("%s:read_limit:%lu read_chunk_size:%lu", __func__, read_limit, read_chunk_size);
 
     PS_MALLOC(*result, sizeof(char) * BUFFER_SIZE);
+    result_c = *result;
 
     // open file
     FILE *file = fopen(searcher->task->path, "r");
@@ -121,10 +123,20 @@ ps_file_searcher_search(ps_searcher_t* searcher,
                   __func__, buffer_offset, bytes_read, total_read_count, buffer_fillsize);
 
         while ( (buffer_fillsize > 0) && (line_end = memchr(search_start, '\n', buffer_fillsize)))
-        {
+        {   
             ssize_t line_len = line_end - search_start;
             buffer_fillsize -= (line_len + 1);
-            PS_CHECK_GOTO_ERROR(ps_regex_find(searcher->regex, buffer, line_len, (search_start-buffer)));
+
+            char sub[BUFFER_SIZE];
+            memcpy(sub, search_start, line_len + 1);
+
+            PS_CHECK_GOTO_ERROR(ps_regex_find(searcher->regex, sub, line_len, 0));
+            if(searcher->regex->found)
+            {
+                memcpy(result_c, sub, line_len + 1);
+                result_len += line_len + 1;
+                result_c += line_len + 1;
+            }
             search_start = line_end + 1;
             processed_bytes += line_len + 1;
         }
@@ -133,7 +145,8 @@ ps_file_searcher_search(ps_searcher_t* searcher,
         log_debug("%s:nothing more to read in buffer: bytes_read:%lu total_read_count:%lu buffer_fillsize:%lu"
                 , __func__, bytes_read, total_read_count, buffer_fillsize);
 
-        if( total_read_count >= read_limit){
+        if( total_read_count >= read_limit)
+        {
             log_debug("%s:search-task done", __func__);
             break;
         }

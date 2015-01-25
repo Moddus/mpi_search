@@ -11,13 +11,14 @@
 void
 CreateAndFree(CuTest* tc)
 {
-    char* file_path = "";
+    char* file_path = "test";
     ps_searcher_t* searcher = NULL;
     ps_search_task_t* task = NULL;
 
     TEST_CHECK(tc, ps_searcher_task_create(&task,
                                             0,
                                             0,
+                                            20,
                                             strlen(file_path),
                                             file_path));
 
@@ -46,7 +47,8 @@ SearchTest(CuTest* tc)
 
     TEST_CHECK(tc, ps_searcher_task_create(&task,
                                             0,
-                                            30,
+                                            300,
+                                            150,
                                             strlen(file_path),
                                             file_path));
 
@@ -56,14 +58,14 @@ SearchTest(CuTest* tc)
 
     TEST_CHECK(tc, ps_file_searcher_search(searcher, &result, &result_len));
 
-    CuAssertStrEquals(tc, "foo;bar;foobar\n", result);
+    CuAssertStrEquals(tc, "foo;bar;foobar\nfoo1;bar1;foobar1\n", result);
 }
 
 CuSuite*
 make_file_searcher_suite()
 {
     CuSuite* suite = CuSuiteNew();
-    SUITE_ADD_TEST(suite, CreateAndFree);
+    //SUITE_ADD_TEST(suite, CreateAndFree);
     SUITE_ADD_TEST(suite, SearchTest);
 
     return suite;

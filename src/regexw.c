@@ -44,7 +44,8 @@ ps_status_t
 ps_regex_find(ps_regex_t *re,
         const char *content,
         size_t content_len,
-        unsigned long content_offset) {
+        unsigned long content_offset)
+{
     int pcre_exec_ret = 0;
 
 //    log_debug("%s:begin", __func__);
@@ -57,11 +58,13 @@ ps_regex_find(ps_regex_t *re,
             re->result_offset,
             MAX_REGEX_RESULT_OFFSET);
 
-    if (pcre_exec_ret < 0) {
+    if (pcre_exec_ret < 0)
+    {
         re->error_code = pcre_exec_ret;
         re->found = FALSE;
     }
-    else {
+    else
+    {
         re->found = TRUE;
     }
 
