@@ -10,6 +10,7 @@
 ps_status_t
 ps_csv_get_column(const char* content,
                   char** val,
+                  int* val_len,
                   int column);
 
 #endif

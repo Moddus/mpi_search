@@ -7,6 +7,7 @@
 #include "file_searcher.h"
 #include "util.h"
 #include "log.h"
+#include "csv.h"
 
 #define BUFFER_SIZE ( 50000 )
 
@@ -130,12 +131,16 @@ ps_file_searcher_search(ps_searcher_t* searcher,
             char sub[BUFFER_SIZE];
             memcpy(sub, search_start, line_len + 1);
 
-            PS_CHECK_GOTO_ERROR(ps_regex_find(searcher->regex, sub, line_len, 0));
+            char *col;
+            int col_len;
+            // TODO: PS_CSV_ALL_COL konfigurierbar machen.
+            PS_CHECK_GOTO_ERROR(ps_csv_get_column(sub, &col, &col_len, PS_CSV_ALL_COL));
+            PS_CHECK_GOTO_ERROR(ps_regex_find(searcher->regex, col, col_len, 0));
             if(searcher->regex->found)
             {
-                memcpy(result_c, sub, line_len + 1);
-                result_len += line_len + 1;
-                result_c += line_len + 1;
+                memcpy(result_c, col, col_len);
+                result_len += col_len;
+                result_c += col_len;
             }
             search_start = line_end + 1;
             processed_bytes += line_len + 1;
