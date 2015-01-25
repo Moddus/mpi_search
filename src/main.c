@@ -24,6 +24,7 @@ main(int argc, char *argv[])
     int number_of_procs = 0, own_rank = 0;
     ps_search_task_t *task = NULL;
     int *slave_nodes = NULL;
+    unsigned long chunk_size = DEFAULT_CHUNK_SIZE;
 
     out_fd = stdout; /*For Logging*/
 
@@ -37,7 +38,7 @@ main(int argc, char *argv[])
     if (own_rank == MASTER)
     {
         opterr = 0;
-        while ((c = getopt (argc, argv, "hds:f:")) != -1)
+        while ((c = getopt (argc, argv, "hds:f:c:")) != -1)
         {
             switch (c)
             {
@@ -51,7 +52,11 @@ main(int argc, char *argv[])
                 search = optarg;
                 search_len = strlen(search);
                 break;
+            case 'c':
+                PS_CHECK_ZERO_GO_ERR( (chunk_size = atol(optarg)), PS_ERROR_WRONG_CHUNK_SIZE);
+                break;
             case 'h':
+                break;
             default:
                 if (optopt == 's')
                     fprintf (stderr, "Option -%c requires an argument.\n", optopt);
@@ -82,7 +87,7 @@ main(int argc, char *argv[])
 
     if (own_rank == MASTER)
     {
-        log_debug("search = %s, path = %s", search, path);
+        log_debug("search = %s, path = %s, chunk_size=%lu", search, path, chunk_size);
 
         for (i = optind; i < argc; i++)
         {
@@ -98,7 +103,7 @@ main(int argc, char *argv[])
         }
 
         PS_CHECK_GOTO_ERROR( distribute_path_and_search_range(path, number_of_procs ,
-                             slave_nodes, MPI_COMM_WORLD, &task));
+                             slave_nodes, chunk_size, MPI_COMM_WORLD, &task));
 
         /*Slaves receive path_length and search_task*/
         ps_searcher_t *searcher;

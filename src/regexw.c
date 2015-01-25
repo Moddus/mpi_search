@@ -44,10 +44,10 @@ ps_status_t
 ps_regex_find(ps_regex_t *re,
         const char *content,
         size_t content_len,
-        unsigned int content_offset) {
+        unsigned long content_offset) {
     int pcre_exec_ret = 0;
 
-    log_debug("%s:begin", __func__);
+//    log_debug("%s:begin", __func__);
     pcre_exec_ret = pcre_exec(re->regex_compiled,
             re->pcre_extra,
             content,
@@ -65,7 +65,7 @@ ps_regex_find(ps_regex_t *re,
         re->found = TRUE;
     }
 
-    log_debug("%s:end", __func__);
+//    log_debug("%s:end", __func__);
     return PS_SUCCESS;
 }
 

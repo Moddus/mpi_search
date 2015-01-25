@@ -10,8 +10,6 @@
 
 #define BUFFER_SIZE ( 50000 )
 
-#define MAX_BYTES_TO_READ ( 1024 * 1024 * 10)
-
 static void
 ps_file_searcher_task_debug(ps_searcher_t *searcher)
 {
@@ -71,20 +69,20 @@ ps_file_searcher_search(ps_searcher_t* searcher,
                         char** result, size_t *result_len)
 {
     ps_status_t rv = PS_SUCCESS;
-    size_t read_limit = 0, total_read_count = 0, processed_bytes = 0;
-    // get enougth space to read
     char *buffer = NULL;
-    size_t buffer_offset = 0, buffer_fillsize = 0;
-    size_t bytes_read = 0;
+    size_t buffer_offset = 0, buffer_fillsize = 0, bytes_read = 0;
+    unsigned long read_limit = 0, total_read_count = 0, processed_bytes = 0, read_chunk_size = 0;
 
     log_debug("%s:begin", __func__);
-    PS_MALLOC(buffer, sizeof(char) * MAX_BYTES_TO_READ);
+    read_chunk_size = (searcher->task->file_read_chunk_size < searcher->task->size) ?
+            searcher->task->file_read_chunk_size : searcher->task->size;
+    PS_MALLOC(buffer, sizeof(char) * read_chunk_size);
 
     *result_len = 0;
     ps_file_searcher_task_debug(searcher);
 
     read_limit = searcher->task->size;
-    log_debug("%s:read_limit:%lu", __func__, read_limit);
+    log_debug("%s:read_limit:%lu read_chunk_size:%lu", __func__, read_limit, read_chunk_size);
 
     PS_MALLOC(*result, sizeof(char) * BUFFER_SIZE);
 
@@ -99,24 +97,20 @@ ps_file_searcher_search(ps_searcher_t* searcher,
     fseek(file, searcher->task->offset, SEEK_CUR);
     log_debug("%s:seeked to start-position: %lu", __func__, searcher->task->offset);
 
-    // move to next line break
+    // move to next line break if not the first segment
     char c;
-    while ( ( c = getc(file) ) != EOF )
+    if(searcher->task->offset > 0)
     {
-        total_read_count++;
-        if (total_read_count > read_limit)
-        {
-            //TODO: Remove because other host will check this line
-            return PS_ERROR_CHUNCK_TO_SHORT;
+        while ((c = getc(file)) != EOF) {
+            if (c == '\n')
+                break;
         }
-
-        if (c == '\n')
-            break;
     }
-    log_debug("%s:total_read_count:%lu", __func__, total_read_count);
+    log_debug("%s:before searching: total_read_count:%lu", __func__, total_read_count);
 
+    //TODO: MAX_BYTES_TO_READ nur wenn kleiner als read_limit. Konfigurierbar machen
     while ( (bytes_read = fread(buffer + buffer_fillsize, sizeof(char),
-            MAX_BYTES_TO_READ - buffer_fillsize, file)) > 0)
+            read_chunk_size - buffer_fillsize, file)) > 0)
     {
         char *search_start = NULL, *line_end = NULL;
 
@@ -130,7 +124,7 @@ ps_file_searcher_search(ps_searcher_t* searcher,
         {
             ssize_t line_len = line_end - search_start;
             buffer_fillsize -= (line_len + 1);
-//            PS_CHECK_GOTO_ERROR(ps_regex_find(searcher->regex, buffer, line_len, 0));
+            PS_CHECK_GOTO_ERROR(ps_regex_find(searcher->regex, buffer, line_len, (search_start-buffer)));
             search_start = line_end + 1;
             processed_bytes += line_len + 1;
         }
@@ -163,6 +157,7 @@ ps_status_t
 ps_searcher_task_create(ps_search_task_t **task,
                         unsigned long offset,
                         unsigned long size,
+                        unsigned long chunk_size,
                         size_t path_len,
                         char* path)
 {
@@ -173,6 +168,7 @@ ps_searcher_task_create(ps_search_task_t **task,
 
     (*task)->offset = offset;
     (*task)->size = size;
+    (*task)->file_read_chunk_size = chunk_size;
     (*task)->path_len = path_len;
 
     strncpy((*task)->path, path, path_len + 1);

@@ -29,7 +29,7 @@ ps_status_t
 ps_regex_find(ps_regex_t* re,
               const char* content,
               size_t content_len,
-              unsigned int content_offset);
+              unsigned long content_offset);
 
 ps_status_t
 ps_regex_free(ps_regex_t* re);

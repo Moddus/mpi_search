@@ -24,6 +24,7 @@ typedef int ps_bool_t;
 #define PS_ERROR_ALLOCATION ( 103 )
 #define PS_ERROR_WRONG_ARGUMENTS  ( 104 )
 #define PS_ERROR_OBJ_CREATE ( 105 )
+#define PS_ERROR_WRONG_CHUNK_SIZE ( 106 )
 
 // I/O
 #define PS_ERROR_FAILED_TO_OPEN_FILE ( 201 )
@@ -50,6 +51,8 @@ typedef int ps_bool_t;
 #define PS_CHECK_VAL_GO_ERR(R, VAL, RV) PS_COMP_VAL_AND_GOTO_WITH_RV(R, !=, VAL, error, RV)
 
 #define PS_CHECK_NEG_VAL_GO_ERR(R, RV) PS_COMP_VAL_AND_GOTO_WITH_RV(R, <, 0, error, RV)
+
+#define PS_CHECK_ZERO_GO_ERR(R, RV) PS_COMP_VAL_AND_GOTO_WITH_RV(R, ==, 0, error, RV)
 
 #define PS_COMP(VAL1, VAL2, RV) PS_COMP_VAL_AND_GOTO_WITH_RV(VAL1, !=, VAL2, error, RV)
 

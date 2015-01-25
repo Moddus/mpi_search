@@ -9,8 +9,9 @@
 
 int
 distribute_path_and_search_range(char *path,
-                                 int number_of_procs,
+                                 unsigned int number_of_procs,
                                  int *slave_proc_numbers,
+                                 unsigned long chunk_size,
                                  MPI_Comm comm,
                                  ps_search_task_t **master_task)
 {
@@ -53,6 +54,7 @@ distribute_path_and_search_range(char *path,
     PS_CHECK_GOTO_ERROR( ps_searcher_task_create(master_task,
                          number_of_slaves * search_range_size,
                          master_search_range_size,
+                         chunk_size,
                          path_len, path ));
 
     PS_MALLOC(slave_tasks, sizeof(ps_search_task_t*) * number_of_slaves);
@@ -65,6 +67,7 @@ distribute_path_and_search_range(char *path,
         PS_CHECK_GOTO_ERROR( ps_searcher_task_create(&slave_tasks[i],
                              i * search_range_size,
                              search_range_size,
+                             chunk_size,
                              path_len,
                              path));
 

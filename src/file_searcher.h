@@ -4,9 +4,13 @@
 #include "util.h"
 #include "regexw.h"
 
+#define DEFAULT_CHUNK_SIZE ( 1024 * 1024 * 10)
+
 typedef struct ps_search_task{
     /*Defines the area to search in*/
     unsigned long offset, size;
+    /*Bytes to read per chunk*/
+    unsigned long file_read_chunk_size;
     /*Length of path*/
     size_t path_len;
     /*Filename of the file, that should be searched*/
@@ -38,6 +42,7 @@ ps_status_t
 ps_searcher_task_create(ps_search_task_t **task,
                              unsigned long offset,
                              unsigned long size,
+                             unsigned long chunk_size,
                              size_t path_len,
                              char* path);
 
