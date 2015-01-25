@@ -65,7 +65,7 @@ CuSuite*
 make_file_searcher_suite()
 {
     CuSuite* suite = CuSuiteNew();
-    //SUITE_ADD_TEST(suite, CreateAndFree);
+    SUITE_ADD_TEST(suite, CreateAndFree);
     SUITE_ADD_TEST(suite, SearchTest);
 
     return suite;
