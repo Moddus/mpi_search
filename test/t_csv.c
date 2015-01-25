@@ -20,6 +20,9 @@ GetColumn(CuTest* tc)
     ps_csv_get_column(test, &val, 3);
     CuAssertStrEquals(tc, "d", val);
     PS_FREE(val);
+    ps_csv_get_column(test, &val, PS_CSV_ALL_COL);
+    CuAssertStrEquals(tc, "a;b;c;d", val);
+
 }
 
 CuSuite*

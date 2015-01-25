@@ -11,6 +11,14 @@ ps_csv_get_column(const char* content,
 {
     ps_status_t rv = PS_SUCCESS;
     int i = 0;
+
+    if( column == PS_CSV_ALL_COL )
+    {
+        *val = (char*) content;
+
+        return rv;
+    }
+
     char* cp = strdup(content);
 
     char* itr = strtok(cp, PS_CSV_SPACER);
