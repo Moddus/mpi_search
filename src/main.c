@@ -88,6 +88,7 @@ main(int argc, char *argv[])
     if (own_rank == MASTER)
     {
         log_debug("search = %s, path = %s, chunk_size=%lu", search, path, chunk_size);
+        log_debug("sizeof(ps_search_task_t:%lu", sizeof(ps_search_task_t));
 
         for (i = optind; i < argc; i++)
         {

@@ -28,13 +28,12 @@ distribute_path_and_search_range(char *path,
 
     if (!path || number_of_procs < 1 || *master_task)
     {
-        log_err("wrong arguments in distribute_path_and_search_range: \
-                 path=%s, number_of_procs:%d, master_task:%p",
+        log_err("wrong arguments in distribute_path_and_search_range: path=%s, number_of_procs:%d, master_task:%p",
                 path, number_of_procs, *master_task);
         rv = PS_ERROR_WRONG_ARGUMENTS;
         goto error;
     }
-    path_len = strlen(path);
+    path_len = strlen(path) + 1;
     number_of_slaves = number_of_procs - 1;
     log_debug("%s: path_len:%u number_of_slaves:%u", __func__, path_len, number_of_slaves);
 

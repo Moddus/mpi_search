@@ -93,11 +93,7 @@ ps_file_searcher_search(ps_searcher_t* searcher,
 
     // open file
     FILE *file = fopen(searcher->task->path, "r");
-    if ( NULL == file )
-    {
-        log_err("%s: could not open file", __func__);
-        return PS_ERROR_FAILED_TO_OPEN_FILE;
-    }
+    PS_CHECK_PTR_NULL(file, PS_ERROR_FAILED_TO_OPEN_FILE);
     // seek to position
     fseek(file, searcher->task->offset, SEEK_CUR);
     log_debug("%s:seeked to start-position: %lu", __func__, searcher->task->offset);
@@ -122,8 +118,8 @@ ps_file_searcher_search(ps_searcher_t* searcher,
         processed_bytes = 0;
         buffer_fillsize += bytes_read;
         search_start = buffer;
-        log_debug("%s:buffer_offest:%lu bytes_read:%lu total_read_count:%lu, buffer_fillsize:%lu",
-                  __func__, buffer_offset, bytes_read, total_read_count, buffer_fillsize);
+//        log_debug("%s:buffer_offest:%lu bytes_read:%lu total_read_count:%lu, buffer_fillsize:%lu",
+//                  __func__, buffer_offset, bytes_read, total_read_count, buffer_fillsize);
 
         while ( (buffer_fillsize > 0) && (line_end = memchr(search_start, '\n', buffer_fillsize)))
         {
@@ -160,8 +156,8 @@ ps_file_searcher_search(ps_searcher_t* searcher,
 
 
         total_read_count += processed_bytes;
-        log_debug("%s:nothing more to read in buffer: bytes_read:%lu total_read_count:%lu buffer_fillsize:%lu"
-                , __func__, bytes_read, total_read_count, buffer_fillsize);
+//        log_debug("%s:nothing more to read in buffer: bytes_read:%lu total_read_count:%lu buffer_fillsize:%lu"
+//                , __func__, bytes_read, total_read_count, buffer_fillsize);
 
         if(total_read_count >= read_limit){
             log_debug("%s:search-task done", __func__);
@@ -172,16 +168,18 @@ ps_file_searcher_search(ps_searcher_t* searcher,
         memmove(buffer, buffer + buffer_offset, buffer_fillsize);
     }
 
-    log_debug("%s:end", __func__);
+    PS_CLOSE_FILE(file);
+    log_debug("%s:end total_read_bytes:%lu", __func__, total_read_count);
     return rv;
 
 error:
-    log_err("Error while searching: %d", rv);
+    log_err("%s:Error while searching: %d", __func__, rv);
+    PS_CLOSE_FILE(file);
     searcher->error = rv;
     PS_FREE(buffer);
 
     return rv;
-    return PS_SUCCESS;}
+}
 
 ps_status_t
 ps_searcher_task_create(ps_search_task_t **task,
@@ -201,9 +199,9 @@ ps_searcher_task_create(ps_search_task_t **task,
     (*task)->file_read_chunk_size = chunk_size;
     (*task)->path_len = path_len;
 
-    strncpy((*task)->path, path, path_len + 1);
+    strncpy((*task)->path, path, path_len);
 
-    log_debug("%s:end", __func__);
+    log_debug("%s:end path:%s", __func__, (*task)->path);
 
     return rv;
 
