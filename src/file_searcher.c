@@ -127,10 +127,6 @@ ps_file_searcher_search(ps_searcher_t* searcher,
             ssize_t line_len = line_end - search_start;
             buffer_fillsize -= (line_len + 1);
 
-//            char sub[START_RESULT_BUFFER_SIZE];
-            // TODO: Kein memcpy. direkt im buffer arbeiten
-//            memcpy(sub, search_start, line_len + 1);
-
 //            char *col;
 //            int col_len;
             // TODO: PS_CSV_ALL_COL konfigurierbar machen.
@@ -146,15 +142,6 @@ ps_file_searcher_search(ps_searcher_t* searcher,
             processed_bytes += line_len + 1;
         }
 
-        /*Increase buffer size if too small for one line -> it does not find a newline*/
-        if(!line_end_found)
-        {
-            read_chunk_size *= 2;
-            log_debug("%s:buffer_size increased to %lu", __func__, read_chunk_size);
-            PS_REALLOC(buffer, sizeof(char) * read_chunk_size);
-        }
-
-
         total_read_count += processed_bytes;
 //        log_debug("%s:nothing more to read in buffer: bytes_read:%lu total_read_count:%lu buffer_fillsize:%lu"
 //                , __func__, bytes_read, total_read_count, buffer_fillsize);
@@ -162,6 +149,14 @@ ps_file_searcher_search(ps_searcher_t* searcher,
         if(total_read_count >= read_limit){
             log_debug("%s:search-task done", __func__);
             break;
+        }
+
+        /*Increase buffer size if too small for one line -> it does not find a newline*/
+        if(!line_end_found)
+        {
+            read_chunk_size *= 2;
+            log_debug("%s:buffer_size increased to %lu", __func__, read_chunk_size);
+            PS_REALLOC(buffer, sizeof(char) * read_chunk_size);
         }
 
         buffer_offset = processed_bytes;

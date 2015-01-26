@@ -93,7 +93,7 @@ distribute_path_and_search_range(char *path,
     return rv;
 
 error:
-    log_debug("%s:error", __func__);
+    log_debug("%s:error: rv:%d", __func__, rv);
     PS_FREE(*master_task);
     if (slave_tasks)
     {

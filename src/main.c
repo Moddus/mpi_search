@@ -124,29 +124,29 @@ main(int argc, char *argv[])
         char *result = NULL;
         size_t result_len = 0;
 
-        PS_CHECK_GOTO_ERROR( recv_task(&task, own_rank, MASTER, MPI_COMM_WORLD));
+        PS_CHECK_GOTO_ERROR(recv_task(&task, own_rank, MASTER, MPI_COMM_WORLD));
 
         PS_CHECK_GOTO_ERROR(ps_file_searcher_create(&searcher, search, task));
         PS_CHECK_GOTO_ERROR(ps_file_searcher_search(searcher, &result, &result_len));
         log_debug("Process %d: result_len: %lu result:%s", own_rank, result_len, result);
         write(STDOUT_FILENO, result, result_len);
-        //PS_CHECK_GOTO_ERROR(ps_file_searcher_free(&searcher));
+//        PS_CHECK_GOTO_ERROR(ps_file_searcher_free(&searcher));
     }
 
     log_debug("Process %d finished", own_rank);
-    MPI_Finalize();
 
     if (own_rank != MASTER)
     {
         PS_FREE(search);
     }
 
+    MPI_Finalize();
     PS_FREE(slave_nodes);
     PS_FREE(task);
     return EXIT_SUCCESS;
     /*-----------------ERROR-Handling------------------------------*/
 error:
-
+    log_err("Process %d finished with error: %d", own_rank, rv);
     MPI_Finalize();
 
     if (own_rank != MASTER)

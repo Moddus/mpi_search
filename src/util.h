@@ -58,7 +58,7 @@ typedef int ps_bool_t;
 #define PS_COMP(VAL1, VAL2, RV) PS_COMP_VAL_AND_GOTO_WITH_RV(VAL1, !=, VAL2, error, RV)
 
 #define PS_CHECK_VAL_AND_GOTO(RV, VAL, GO)         \
-    if(RV != VAL) {                \
+    if((rv = RV) != VAL) {                \
         log_err("file : %s line: %d func: %s", __FILE__, __LINE__, __func__);\
         goto GO;                          \
     }
