@@ -103,6 +103,7 @@ ps_file_searcher_search(ps_searcher_t* searcher,
     if(searcher->task->offset > 0)
     {
         while ((c = getc(file)) != EOF) {
+            total_read_count++;
             if (c == '\n')
                 break;
         }
