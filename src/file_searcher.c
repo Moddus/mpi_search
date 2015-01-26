@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "regex.h"
 #include "file_searcher.h"
@@ -130,22 +131,21 @@ ps_file_searcher_search(ps_searcher_t* searcher,
             ssize_t line_len = line_end - search_start;
             buffer_fillsize -= (line_len + 1);
 
-
-            char sub[START_RESULT_BUFFER_SIZE];
+//            char sub[START_RESULT_BUFFER_SIZE];
             // TODO: Kein memcpy. direkt im buffer arbeiten
-            memcpy(sub, search_start, line_len + 1);
+//            memcpy(sub, search_start, line_len + 1);
 
-            char *col;
-            int col_len;
+//            char *col;
+//            int col_len;
             // TODO: PS_CSV_ALL_COL konfigurierbar machen.
-            PS_CHECK_GOTO_ERROR(ps_csv_get_column(sub, &col, &col_len, PS_CSV_ALL_COL));
-            PS_CHECK_GOTO_ERROR(ps_regex_find(searcher->regex, col, col_len, 0));
-            if(searcher->regex->found)
-            {
-                memcpy(result_c, col, col_len);
-                result_len += col_len;
-                result_c += col_len;
-            }
+//            PS_CHECK_GOTO_ERROR(ps_csv_get_column(sub, &col, &col_len, PS_CSV_ALL_COL));
+            PS_CHECK_GOTO_ERROR(ps_regex_find(searcher->regex, search_start, line_len, 0));
+//            if(searcher->regex->found)
+//            {
+//                memcpy(result_c, col, col_len);
+//                result_len += line_len;
+//                result_c += col_len;
+//            }
             search_start = line_end + 1;
             processed_bytes += line_len + 1;
         }
