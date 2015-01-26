@@ -127,8 +127,8 @@ ps_file_searcher_search(ps_searcher_t* searcher,
             line_end_found = TRUE;
             size_t line_len = line_end - search_start + 1;
             buffer_fillsize -= line_len;
-            char *val;
-            int val_len;
+            char *val = NULL;
+            size_t val_len;
 
             PS_CHECK_GOTO_ERROR(ps_csv_get_column(search_start, line_len, &val, &val_len, searcher->task->col_num));
             if(NULL != val)
