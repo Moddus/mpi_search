@@ -125,22 +125,30 @@ ps_file_searcher_search(ps_searcher_t* searcher,
         while ( (buffer_fillsize > 0) && (line_end = memchr(search_start, '\n', buffer_fillsize)))
         {
             line_end_found = TRUE;
-            ssize_t line_len = line_end - search_start;
-            buffer_fillsize -= (line_len + 1);
+            size_t line_len = line_end - search_start + 1;
+            buffer_fillsize -= line_len;
+            char *val;
+            int val_len;
 
-//            char *col;
-//            int col_len;
-            // TODO: PS_CSV_ALL_COL konfigurierbar machen.
-//            PS_CHECK_GOTO_ERROR(ps_csv_get_column(sub, &col, &col_len, PS_CSV_ALL_COL));
-            PS_CHECK_GOTO_ERROR(ps_regex_find(searcher->regex, search_start, line_len, 0));
-            if(searcher->regex->found)
+            PS_CHECK_GOTO_ERROR(ps_csv_get_column(search_start, line_len, &val, &val_len, searcher->task->col_num));
+            if(NULL != val)
             {
-                memcpy(result_c, search_start, line_len + 1);
-                result_len += line_len + 1;
-                result_c += line_len + 1;
+                PS_CHECK_GOTO_ERROR(ps_regex_find(searcher->regex, val, val_len, 0));
+
+                if(searcher->regex->found)
+                {
+                    memcpy(result_c, search_start, line_len);
+                    result_len += line_len;
+                    result_c += line_len;
+                }
+
+                if(val != search_start)
+                {
+                    PS_FREE(val);
+                }
             }
             search_start = line_end + 1;
-            processed_bytes += line_len + 1;
+            processed_bytes += line_len;
         }
 
         total_read_count += processed_bytes;
@@ -194,6 +202,7 @@ ps_searcher_task_create(ps_search_task_t **task,
     (*task)->size = size;
     (*task)->file_read_chunk_size = chunk_size;
     (*task)->path_len = path_len;
+    (*task)->col_num = PS_CSV_ALL_COL;
 
     strncpy((*task)->path, path, path_len);
 

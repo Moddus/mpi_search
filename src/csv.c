@@ -6,6 +6,7 @@
 
 ps_status_t
 ps_csv_get_column(const char* content,
+                  size_t content_len,
                   char** val,
                   int* val_len,
                   int column)
@@ -21,7 +22,9 @@ ps_csv_get_column(const char* content,
         return rv;
     }
 
-    char* cp = strdup(content);
+    char* cp;
+    PS_MALLOC(cp, sizeof(char) * content_len);
+    strncpy(cp, content, content_len);
 
     char* itr = strtok(cp, PS_CSV_SPACER);
     if(column > 0)
@@ -34,10 +37,19 @@ ps_csv_get_column(const char* content,
         }
     }
 
-    size_t len = strlen(itr) + 1;
-    PS_MALLOC(*val, len * sizeof(char));
-    strncpy(*val, itr, len);
-    *val_len = len;
+    if(NULL == itr)
+    {
+        *val = NULL;
+        *val_len = -1;
+    }
+    else
+    {
+        size_t len = strlen(itr);
+        PS_MALLOC(*val, len * sizeof(char));
+        strncpy(*val, itr, len);
+        *val_len = len;
+    }
+
     PS_FREE(cp);
 
     return rv;

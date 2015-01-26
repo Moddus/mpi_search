@@ -51,6 +51,7 @@ SearchTest(CuTest* tc)
                                             150,
                                             strlen(file_path),
                                             file_path));
+    task->col_num = 2;
 
     TEST_CHECK(tc, ps_file_searcher_create(&searcher,
                                             "foobar",
