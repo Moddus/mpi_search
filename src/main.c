@@ -22,9 +22,10 @@ main(int argc, char *argv[])
     size_t search_len = 0;
     int i = 0, c = 0;
     int number_of_procs = 0, own_rank = 0;
-    ps_search_task_t *task = NULL;
     int *slave_nodes = NULL;
     unsigned long chunk_size = DEFAULT_CHUNK_SIZE;
+    ps_searcher_t *searcher = NULL;
+    ps_search_task_t *task = NULL;
 
     out_fd = stdout; /*For Logging*/
 
@@ -87,6 +88,10 @@ main(int argc, char *argv[])
 
     if (own_rank == MASTER)
     {
+        char *result = NULL;
+        size_t result_len = 0;
+        void *temp;
+
         log_debug("search = %s, path = %s, chunk_size=%lu", search, path, chunk_size);
         log_debug("sizeof(ps_search_task_t:%lu", sizeof(ps_search_task_t));
 
@@ -107,20 +112,16 @@ main(int argc, char *argv[])
                              slave_nodes, chunk_size, MPI_COMM_WORLD, &task));
 
         /*Slaves receive path_length and search_task*/
-        ps_searcher_t *searcher;
-        char *result = NULL;
-        size_t result_len = 0;
 
         PS_CHECK_GOTO_ERROR(ps_file_searcher_create(&searcher, search, task));
         PS_CHECK_GOTO_ERROR(ps_file_searcher_search(searcher, &result, &result_len));
         log_debug("Process %d: result_len: %lu result:%s", own_rank, result_len, result);
         write(STDOUT_FILENO, result, result_len);
-        //PS_CHECK_GOTO_ERROR(ps_file_searcher_free(&searcher));
+        PS_CHECK_GOTO_ERROR(ps_file_searcher_free(&searcher));
     }
     else
     {
         /*Slaves receive path_length and search_task*/
-        ps_searcher_t *searcher;
         char *result = NULL;
         size_t result_len = 0;
 
@@ -130,7 +131,7 @@ main(int argc, char *argv[])
         PS_CHECK_GOTO_ERROR(ps_file_searcher_search(searcher, &result, &result_len));
         log_debug("Process %d: result_len: %lu result:%s", own_rank, result_len, result);
         write(STDOUT_FILENO, result, result_len);
-//        PS_CHECK_GOTO_ERROR(ps_file_searcher_free(&searcher));
+        PS_CHECK_GOTO_ERROR(ps_file_searcher_free(&searcher));
     }
 
     log_debug("Process %d finished", own_rank);
@@ -142,7 +143,7 @@ main(int argc, char *argv[])
 
     MPI_Finalize();
     PS_FREE(slave_nodes);
-    PS_FREE(task);
+
     return EXIT_SUCCESS;
     /*-----------------ERROR-Handling------------------------------*/
 error:
@@ -155,7 +156,10 @@ error:
     }
 
     PS_FREE(slave_nodes);
-    PS_FREE(task);
+    if(searcher)
+    {
+        PS_FREE(searcher->task);
+    }
     return rv;
 }
 

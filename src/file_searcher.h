@@ -49,6 +49,6 @@ ps_searcher_task_create(ps_search_task_t **task,
                              char* path);
 
 ps_status_t
-ps_searcher_task_free(ps_search_task_t* task);
+ps_searcher_task_free(ps_search_task_t** task);
 
 #endif

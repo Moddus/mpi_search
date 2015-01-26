@@ -55,17 +55,6 @@ error:
     return rv;
 }
 
-ps_status_t
-ps_file_searcher_free(ps_searcher_t** searcher)
-{
-    log_debug("%s:begin", __func__);
-    ps_regex_free((*searcher)->regex);
-    ps_searcher_task_free((*searcher)->task);
-    PS_FREE(*searcher);
-
-    log_debug("%s:end", __func__);
-    return PS_SUCCESS;
-}
 
 ps_status_t
 ps_file_searcher_search(ps_searcher_t* searcher,
@@ -216,10 +205,21 @@ error:
 }
 
 ps_status_t
-ps_searcher_task_free(ps_search_task_t* task)
+ps_file_searcher_free(ps_searcher_t** searcher)
 {
-    PS_FREE(task);
+    log_debug("%s:begin", __func__);
+    ps_regex_free((*searcher)->regex);
+    ps_searcher_task_free(&(*searcher)->task);
+    PS_FREE(*searcher);
 
+    log_debug("%s:end", __func__);
+    return PS_SUCCESS;
+}
+
+ps_status_t
+ps_searcher_task_free(ps_search_task_t** task)
+{
+    PS_FREE(*task);
     return PS_SUCCESS;
 }
 
