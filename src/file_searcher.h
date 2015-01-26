@@ -35,9 +35,10 @@ ps_file_searcher_create(ps_searcher_t** seacher,
 ps_status_t
 ps_file_searcher_free(ps_searcher_t** searcher);
 
-int
+ps_status_t
 ps_file_searcher_search(ps_searcher_t* seacher,
-                        char** result, size_t *result_len);
+                        char** result,
+                        size_t *result_len);
 
 
 ps_status_t
