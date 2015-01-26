@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 #include "regex.h"
 #include "file_searcher.h"
@@ -9,7 +8,7 @@
 #include "log.h"
 #include "csv.h"
 
-#define BUFFER_SIZE ( 50000 )
+#define START_RESULT_BUFFER_SIZE ( 50000 )
 
 static void
 ps_file_searcher_task_debug(ps_searcher_t *searcher)
@@ -18,9 +17,11 @@ ps_file_searcher_task_debug(ps_searcher_t *searcher)
 
     if (searcher->task)
     {
-        log_debug("Task: offset:%lu size:%lu path_len:%lu path:%s",
+        log_debug("%s:Task: offset:%lu size:%lu file_read_chunk_size:%lu path_len:%lu path:%s",
+                  __func__,
                   searcher->task->offset,
                   searcher->task->size,
+                  searcher->task->file_read_chunk_size,
                   searcher->task->path_len,
                   searcher->task->path);
     }
@@ -86,7 +87,7 @@ ps_file_searcher_search(ps_searcher_t* searcher,
     read_limit = searcher->task->size;
     log_debug("%s:read_limit:%lu read_chunk_size:%lu", __func__, read_limit, read_chunk_size);
 
-    PS_MALLOC(*result, sizeof(char) * BUFFER_SIZE);
+    PS_MALLOC(*result, sizeof(char) * START_RESULT_BUFFER_SIZE);
     result_c = *result;
 
     // open file
@@ -111,11 +112,11 @@ ps_file_searcher_search(ps_searcher_t* searcher,
     }
     log_debug("%s:before searching: total_read_count:%lu", __func__, total_read_count);
 
-    //TODO: MAX_BYTES_TO_READ nur wenn kleiner als read_limit. Konfigurierbar machen
     while ( (bytes_read = fread(buffer + buffer_fillsize, sizeof(char),
             read_chunk_size - buffer_fillsize, file)) > 0)
     {
         char *search_start = NULL, *line_end = NULL;
+        int line_end_found = FALSE;
 
         processed_bytes = 0;
         buffer_fillsize += bytes_read;
@@ -124,11 +125,14 @@ ps_file_searcher_search(ps_searcher_t* searcher,
                   __func__, buffer_offset, bytes_read, total_read_count, buffer_fillsize);
 
         while ( (buffer_fillsize > 0) && (line_end = memchr(search_start, '\n', buffer_fillsize)))
-        {   
+        {
+            line_end_found = TRUE;
             ssize_t line_len = line_end - search_start;
             buffer_fillsize -= (line_len + 1);
 
-            char sub[BUFFER_SIZE];
+
+            char sub[START_RESULT_BUFFER_SIZE];
+            // TODO: Kein memcpy. direkt im buffer arbeiten
             memcpy(sub, search_start, line_len + 1);
 
             char *col;
@@ -146,12 +150,20 @@ ps_file_searcher_search(ps_searcher_t* searcher,
             processed_bytes += line_len + 1;
         }
 
+        /*Increase buffer size if too small for one line -> it does not find a newline*/
+        if(!line_end_found)
+        {
+            read_chunk_size *= 2;
+            log_debug("%s:buffer_size increased to %lu", __func__, read_chunk_size);
+            PS_REALLOC(buffer, sizeof(char) * read_chunk_size);
+        }
+
+
         total_read_count += processed_bytes;
         log_debug("%s:nothing more to read in buffer: bytes_read:%lu total_read_count:%lu buffer_fillsize:%lu"
                 , __func__, bytes_read, total_read_count, buffer_fillsize);
 
-        if( total_read_count >= read_limit)
-        {
+        if(total_read_count >= read_limit){
             log_debug("%s:search-task done", __func__);
             break;
         }

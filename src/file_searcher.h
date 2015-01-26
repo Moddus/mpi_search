@@ -4,7 +4,7 @@
 #include "util.h"
 #include "regexw.h"
 
-#define DEFAULT_CHUNK_SIZE ( 1024 * 1024 * 10)
+#define DEFAULT_CHUNK_SIZE ( 1024 * 1024 * 10 )
 
 typedef struct ps_search_task{
     /*Defines the area to search in*/
