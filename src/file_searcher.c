@@ -103,7 +103,6 @@ ps_file_searcher_search(ps_searcher_t* searcher,
     if(searcher->task->offset > 0)
     {
         while ((c = getc(file)) != EOF) {
-            total_read_count++;
             if (c == '\n')
                 break;
         }
@@ -122,7 +121,8 @@ ps_file_searcher_search(ps_searcher_t* searcher,
 //        log_debug("%s:buffer_offest:%lu bytes_read:%lu total_read_count:%lu, buffer_fillsize:%lu",
 //                  __func__, buffer_offset, bytes_read, total_read_count, buffer_fillsize);
 
-        while ( (buffer_fillsize > 0) && (line_end = memchr(search_start, '\n', buffer_fillsize)))
+        while ( (total_read_count < read_limit) &&
+                (buffer_fillsize > 0) && (line_end = memchr(search_start, '\n', buffer_fillsize)))
         {
             line_end_found = TRUE;
             size_t line_len = line_end - search_start + 1;
@@ -149,11 +149,8 @@ ps_file_searcher_search(ps_searcher_t* searcher,
             }
             search_start = line_end + 1;
             processed_bytes += line_len;
+            total_read_count += line_len;
         }
-
-        total_read_count += processed_bytes;
-//        log_debug("%s:nothing more to read in buffer: bytes_read:%lu total_read_count:%lu buffer_fillsize:%lu"
-//                , __func__, bytes_read, total_read_count, buffer_fillsize);
 
         if(total_read_count >= read_limit){
             log_debug("%s:search-task done", __func__);
@@ -173,7 +170,8 @@ ps_file_searcher_search(ps_searcher_t* searcher,
     }
 
     PS_CLOSE_FILE(file);
-    log_debug("%s:end total_read_bytes:%lu", __func__, total_read_count);
+    log_debug("%s:end searcher_task_offset:%lu read_limit:%lu total_read_bytes:%lu", __func__,
+            searcher->task->offset, read_limit, temp, total_read_count);
     return rv;
 
 error:
