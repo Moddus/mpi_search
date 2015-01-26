@@ -140,12 +140,12 @@ ps_file_searcher_search(ps_searcher_t* searcher,
             // TODO: PS_CSV_ALL_COL konfigurierbar machen.
 //            PS_CHECK_GOTO_ERROR(ps_csv_get_column(sub, &col, &col_len, PS_CSV_ALL_COL));
             PS_CHECK_GOTO_ERROR(ps_regex_find(searcher->regex, search_start, line_len, 0));
-//            if(searcher->regex->found)
-//            {
-//                memcpy(result_c, col, col_len);
-//                result_len += line_len;
-//                result_c += col_len;
-//            }
+            if(searcher->regex->found)
+            {
+                memcpy(result_c, search_start, line_len + 1);
+                result_len += line_len + 1;
+                result_c += line_len + 1;
+            }
             search_start = line_end + 1;
             processed_bytes += line_len + 1;
         }
