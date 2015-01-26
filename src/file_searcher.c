@@ -63,7 +63,7 @@ ps_file_searcher_search(ps_searcher_t* searcher,
 {
     ps_status_t rv = PS_SUCCESS;
     char *buffer = NULL, *result_c = NULL;
-    size_t buffer_offset = 0, buffer_fillsize = 0, bytes_read = 0;
+    size_t buffer_offset = 0, buffer_fillsize = 0, bytes_read = 0, result_buffer_size = START_RESULT_BUFFER_SIZE;
     unsigned long read_limit = 0, total_read_count = 0, processed_bytes = 0, read_chunk_size = 0;
 
     log_debug("%s:begin", __func__);
@@ -77,7 +77,7 @@ ps_file_searcher_search(ps_searcher_t* searcher,
     read_limit = searcher->task->size;
     log_debug("%s:read_limit:%lu read_chunk_size:%lu", __func__, read_limit, read_chunk_size);
 
-    PS_MALLOC(*result, sizeof(char) * START_RESULT_BUFFER_SIZE);
+    PS_MALLOC(*result, sizeof(char) * result_buffer_size);
     result_c = *result;
 
     // open file
@@ -126,8 +126,14 @@ ps_file_searcher_search(ps_searcher_t* searcher,
 
                 if(searcher->regex->found)
                 {
+                    while((result_buffer_size - *result_len) < line_len)
+                    {
+                        result_buffer_size += START_RESULT_BUFFER_SIZE;
+                        PS_REALLOC(*result , sizeof(char) * result_buffer_size);
+                        result_c = *result + *result_len;
+                    }
                     memcpy(result_c, search_start, line_len);
-                    result_len += line_len;
+                    *result_len += line_len;
                     result_c += line_len;
                 }
 

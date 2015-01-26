@@ -26,6 +26,7 @@ main(int argc, char *argv[])
     unsigned long chunk_size = DEFAULT_CHUNK_SIZE;
     ps_searcher_t *searcher = NULL;
     ps_search_task_t *task = NULL;
+    char *result = NULL;
 
     out_fd = stdout; /*For Logging*/
 
@@ -122,7 +123,6 @@ main(int argc, char *argv[])
     else
     {
         /*Slaves receive path_length and search_task*/
-        char *result = NULL;
         size_t result_len = 0;
 
         PS_CHECK_GOTO_ERROR(recv_task(&task, own_rank, MASTER, MPI_COMM_WORLD));
@@ -143,6 +143,7 @@ main(int argc, char *argv[])
 
     MPI_Finalize();
     PS_FREE(slave_nodes);
+    PS_FREE(result);
 
     return EXIT_SUCCESS;
     /*-----------------ERROR-Handling------------------------------*/
@@ -160,6 +161,8 @@ error:
     {
         PS_FREE(searcher->task);
     }
+    PS_FREE(result);
+
     return rv;
 }
 
