@@ -171,7 +171,7 @@ ps_file_searcher_search(ps_searcher_t* searcher,
 
     PS_CLOSE_FILE(file);
     log_debug("%s:end searcher_task_offset:%lu read_limit:%lu total_read_bytes:%lu", __func__,
-            searcher->task->offset, read_limit, temp, total_read_count);
+            searcher->task->offset, read_limit, total_read_count);
     return rv;
 
 error:
