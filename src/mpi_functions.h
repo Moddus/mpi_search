@@ -9,6 +9,7 @@
 
 #define PS_MPI_TAG_PATH_LENGTH 0
 #define PS_MPI_TAG_SEARCH_TASK 1
+#define PS_MPI_TAG_RESULT 2
 
 /**
  * Divides the path into peaces for searching. The master_task is a lot smaller,

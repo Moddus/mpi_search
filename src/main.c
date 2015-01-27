@@ -27,6 +27,7 @@ main(int argc, char *argv[])
     ps_searcher_t *searcher = NULL;
     ps_search_task_t *task = NULL;
     char *result = NULL;
+    size_t result_len = 0, total_result_len = 0, *all_result_len = NULL;
 
     out_fd = stdout; /*For Logging*/
 
@@ -89,10 +90,6 @@ main(int argc, char *argv[])
 
     if (own_rank == MASTER)
     {
-        char *result = NULL;
-        size_t result_len = 0;
-        void *temp;
-
         log_debug("search = %s, path = %s, chunk_size=%lu", search, path, chunk_size);
         log_debug("sizeof(ps_search_task_t:%lu", sizeof(ps_search_task_t));
 
@@ -116,34 +113,51 @@ main(int argc, char *argv[])
 
         PS_CHECK_GOTO_ERROR(ps_file_searcher_create(&searcher, search, task));
         PS_CHECK_GOTO_ERROR(ps_file_searcher_search(searcher, &result, &result_len));
-        log_debug("Process %d: result_len: %lu result:%s", own_rank, result_len, result);
-        write(STDOUT_FILENO, result, result_len);
+        log_debug("Process %d: result_len: %lu", own_rank, result_len);
         PS_CHECK_GOTO_ERROR(ps_file_searcher_free(&searcher));
+        PS_MALLOC(all_result_len, sizeof(size_t) * number_of_procs);
     }
     else
     {
         /*Slaves receive path_length and search_task*/
-        size_t result_len = 0;
-
         PS_CHECK_GOTO_ERROR(recv_task(&task, own_rank, MASTER, MPI_COMM_WORLD));
 
         PS_CHECK_GOTO_ERROR(ps_file_searcher_create(&searcher, search, task));
         PS_CHECK_GOTO_ERROR(ps_file_searcher_search(searcher, &result, &result_len));
-        log_debug("Process %d: result_len: %lu result:%s", own_rank, result_len, result);
-        write(STDOUT_FILENO, result, result_len);
+        log_debug("Process %d: result_len: %lu", own_rank, result_len);
         PS_CHECK_GOTO_ERROR(ps_file_searcher_free(&searcher));
+    }
+
+    PS_MPI_CHECK_ERR(MPI_Gather(&result_len, 1, MPI_UNSIGNED_LONG, all_result_len, 1, MPI_UNSIGNED_LONG, MASTER,
+            MPI_COMM_WORLD));
+
+    if(own_rank == MASTER)
+    {
+        for(i = 0; i < number_of_procs; i++){
+            total_result_len += all_result_len[i];
+        }
+        log_debug("Process %d: total_result_len:%lu", own_rank, total_result_len);
+        PS_REALLOC(result, total_result_len);
+        for(i = 1; i < number_of_procs; i++){
+            PS_MPI_CHECK_ERR(MPI_Recv(result + all_result_len[i - 1], all_result_len[i], MPI_CHAR,
+                    i, PS_MPI_TAG_RESULT, MPI_COMM_WORLD, MPI_STATUSES_IGNORE));
+            result_len += all_result_len[i];
+        }
+        write(STDOUT_FILENO, result, result_len);
+    }
+    else
+    {
+        PS_MPI_CHECK_ERR(MPI_Send(result, result_len, MPI_CHAR, MASTER, PS_MPI_TAG_RESULT, MPI_COMM_WORLD));
+        PS_FREE(search);
     }
 
     log_debug("Process %d finished", own_rank);
 
-    if (own_rank != MASTER)
-    {
-        PS_FREE(search);
-    }
-
     MPI_Finalize();
+
     PS_FREE(slave_nodes);
     PS_FREE(result);
+    PS_FREE(all_result_len);
 
     return EXIT_SUCCESS;
     /*-----------------ERROR-Handling------------------------------*/
@@ -162,6 +176,7 @@ error:
         PS_FREE(searcher->task);
     }
     PS_FREE(result);
+    PS_FREE(all_result_len);
 
     return rv;
 }
