@@ -12,6 +12,7 @@
 #include "file_searcher.h"
 #include "file_util.h"
 #include "ps_mpi.h"
+#include "csv.h"
 
 int
 main(int argc, char *argv[])
@@ -28,6 +29,7 @@ main(int argc, char *argv[])
     ps_search_task_t *task = NULL;
     char *result = NULL;
     size_t result_len = 0, total_result_len = 0, *all_result_len = NULL;
+    int search_col = PS_CSV_ALL_COL;
 
     out_fd = stdout; /*For Logging*/
 
@@ -41,7 +43,7 @@ main(int argc, char *argv[])
     if (own_rank == MASTER)
     {
         opterr = 0;
-        while ((c = getopt (argc, argv, "hds:f:c:")) != -1)
+        while ((c = getopt (argc, argv, "hds:f:c:l:")) != -1)
         {
             switch (c)
             {
@@ -57,6 +59,9 @@ main(int argc, char *argv[])
                 break;
             case 'c':
                 PS_CHECK_ZERO_GO_ERR( (chunk_size = atol(optarg)), PS_ERROR_WRONG_CHUNK_SIZE);
+                break;
+            case 'l':
+                search_col = atoi(optarg);
                 break;
             case 'h':
                 break;
@@ -106,8 +111,13 @@ main(int argc, char *argv[])
             slave_nodes[i] = i + 1;
         }
 
-        PS_CHECK_GOTO_ERROR( distribute_path_and_search_range(path, number_of_procs ,
-                             slave_nodes, chunk_size, MPI_COMM_WORLD, &task));
+        PS_CHECK_GOTO_ERROR( distribute_path_and_search_range(path,
+                                                              number_of_procs ,
+                                                              slave_nodes,
+                                                              chunk_size,
+                                                              search_col,
+                                                              MPI_COMM_WORLD,
+                                                              &task));
 
         /*Slaves receive path_length and search_task*/
 

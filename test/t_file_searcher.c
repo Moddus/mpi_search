@@ -5,6 +5,7 @@
 #include <util.h>
 #include <file_searcher.h>
 #include <mpi_functions.h>
+#include <csv.h>
 
 #include "test_all.h"
 
@@ -19,6 +20,7 @@ CreateAndFree(CuTest* tc)
                                             0,
                                             0,
                                             20,
+                                            PS_CSV_ALL_COL,
                                             strlen(file_path),
                                             file_path));
 
@@ -49,6 +51,7 @@ SearchTest(CuTest* tc)
                                             0,
                                             300,
                                             150,
+                                            PS_CSV_ALL_COL,
                                             strlen(file_path),
                                             file_path));
     task->col_num = 2;

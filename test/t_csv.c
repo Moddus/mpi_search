@@ -30,7 +30,7 @@ GetColumn(CuTest* tc)
     PS_FREE(val);
     ps_csv_get_column(test, test_len, &val, &val_len, PS_CSV_ALL_COL);
     CuAssertStrEquals(tc, "a;b;c;d", val);
-    CuAssertIntEquals(tc, 7 , val_len);
+    CuAssertIntEquals(tc, 8, val_len);
 
     char test2[] = "a;b;c;d\ne;f;g;h\n";
     ps_csv_get_column(test2, 8, &val, &val_len, 6);

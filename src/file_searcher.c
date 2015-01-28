@@ -183,6 +183,7 @@ ps_searcher_task_create(ps_search_task_t **task,
                         unsigned long offset,
                         unsigned long size,
                         unsigned long chunk_size,
+                        int search_col,
                         size_t path_len,
                         char* path)
 {
@@ -195,7 +196,7 @@ ps_searcher_task_create(ps_search_task_t **task,
     (*task)->size = size;
     (*task)->file_read_chunk_size = chunk_size;
     (*task)->path_len = path_len;
-    (*task)->col_num = PS_CSV_ALL_COL;
+    (*task)->col_num = search_col;
 
     strncpy((*task)->path, path, path_len);
 

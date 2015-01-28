@@ -14,7 +14,7 @@ typedef struct ps_search_task{
     /*Length of path*/
     size_t path_len;
     /*column number vor CSV*/
-    unsigned int col_num;
+    int col_num;
     /*Filename of the file, that should be searched*/
     char path[];
 } ps_search_task_t;
@@ -46,6 +46,7 @@ ps_searcher_task_create(ps_search_task_t **task,
                              unsigned long offset,
                              unsigned long size,
                              unsigned long chunk_size,
+                             int search_col,
                              size_t path_len,
                              char* path);
 

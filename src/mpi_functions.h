@@ -26,6 +26,7 @@ distribute_path_and_search_range(char *path,
                                  unsigned int number_of_procs,
                                  int *slave_proc_numbers,
                                  unsigned long chunk_size,
+                                 int search_col,
                                  MPI_Comm comm,
                                  ps_search_task_t **master_task);
 
