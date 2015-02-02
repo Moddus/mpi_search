@@ -4,7 +4,7 @@ CHUNKSTART=1;
 CHUNKSTEP=10;
 CHUNKEND=100;
 
-if [[ $# -eq 1 ]]; then
+if [[ $# -ge 1 ]]; then
     MAX_N=$1;
 fi
 
@@ -13,6 +13,8 @@ if [[ $# -eq 4 ]]; then
     CHUNKSTEP=$3;
     CHUNKEND=$4;
 fi
+
+echo max_procs: $MAX_N chunkstart: $CHUNKSTART chunkstep: $chunkstep chunkend: $CHUNKEND
 
 for n in `seq 1 1 $MAX_N`; do
     innerN=$n
