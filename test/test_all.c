@@ -23,8 +23,11 @@ void RunAllTests(void)
     printf("%s\n", output->buffer);
 }
 
-int main(void)
+int
+main(int argc, char *argv[])
 {
     out_fd = stdout; /*For Logging*/
     RunAllTests();
+
+    return EXIT_SUCCESS;
 }
