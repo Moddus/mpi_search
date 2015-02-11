@@ -83,19 +83,21 @@ ps_file_searcher_search(ps_searcher_t* searcher,
     // open file
     FILE *file = fopen(searcher->task->path, "r");
     PS_CHECK_PTR_NULL(file, PS_ERROR_FAILED_TO_OPEN_FILE);
-    // seek to position
-    fseek(file, searcher->task->offset, SEEK_CUR);
-    log_debug("%s:seeked to start-position: %lu", __func__, searcher->task->offset);
 
-    // move to next line break if not the first segment
+    // move to next line break
     char c;
-    if(searcher->task->offset > 0)
+    if(searcher->task->offset > 0 )
     {
+        // seek to position. -1 to check if last_sign was a EOF.
+        // Then the current offset is the beginning of a line
+        fseek(file, searcher->task->offset - 1, SEEK_CUR);
         while ((c = getc(file)) != EOF) {
             if (c == '\n')
                 break;
         }
     }
+
+    log_debug("%s:seeked to start-position: %lu", __func__, searcher->task->offset);
     log_debug("%s:before searching: total_read_count:%lu", __func__, total_read_count);
 
     while ( (bytes_read = fread(buffer + buffer_fillsize, sizeof(char),
