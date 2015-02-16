@@ -17,7 +17,6 @@
 
 extern float process_search_time;
 extern float process_file_io_time;
-extern float process_total_time;
 #endif
 
 int
@@ -38,9 +37,10 @@ main(int argc, char *argv[])
     int search_col = PS_CSV_ALL_COL;
 
 #ifdef TIME_MEASUREMENT
-    float total_seconds = 0, total_search_time = 0, total_file_io_time = 0;
-    struct timeval time_start;
+    float total_seconds = 0, total_search_time = 0, total_file_io_time = 0, total_setup_time = 0, total_reduce_time = 0;
+    struct timeval time_start, current_time;
     gettimeofday(&time_start, NULL);
+    memcpy(&current_time, &time_start, sizeof(struct timeval));
 #endif
 
     out_fd = stdout; /*For Logging*/
@@ -105,6 +105,13 @@ main(int argc, char *argv[])
     PS_MPI_CHECK_ERR(MPI_Bcast(search, search_len + 1, MPI_CHAR, MASTER, MPI_COMM_WORLD));
     log_debug("Process %d: search_len:%u search:%s", own_rank, search_len, search);
 
+#ifdef TIME_MEASUREMENT
+    if(own_rank == MASTER)
+    {
+        update_timestamp_and_total_seconds(&current_time, &total_setup_time);
+    }
+#endif
+
     if (own_rank == MASTER)
     {
         log_debug("search = %s, path = %s, chunk_size=%lu", search, path, chunk_size);
@@ -150,6 +157,10 @@ main(int argc, char *argv[])
         PS_CHECK_GOTO_ERROR(ps_file_searcher_free(&searcher));
     }
 
+#ifdef TIME_MEASUREMENT
+    gettimeofday(&current_time, NULL);
+#endif
+
     PS_MPI_CHECK_ERR(MPI_Gather(&result_len, 1, MPI_UNSIGNED_LONG, all_result_len, 1, MPI_UNSIGNED_LONG, MASTER,
             MPI_COMM_WORLD));
 
@@ -175,8 +186,11 @@ main(int argc, char *argv[])
 
     log_debug("Process %d finished", own_rank);
 
-
 #ifdef TIME_MEASUREMENT
+    if(own_rank == MASTER)
+    {
+        update_timestamp_and_total_seconds(&current_time, &total_reduce_time);
+    }
     PS_MPI_CHECK_ERR(MPI_Reduce(&process_search_time, &total_search_time, 1, MPI_FLOAT, MPI_SUM, MASTER,
             MPI_COMM_WORLD));
     PS_MPI_CHECK_ERR(MPI_Reduce(&process_file_io_time , &total_file_io_time, 1, MPI_FLOAT, MPI_SUM, MASTER,
@@ -185,9 +199,15 @@ main(int argc, char *argv[])
     update_timestamp_and_total_seconds(&time_start, &total_seconds);
     if(own_rank == MASTER)
     {
-        printf("Total-Time: %.3fs, average-io-time: %.3fs , average-search-time: %.3fs , processes: %d, chunksize: "
-                        "%lu Bytes\n",
-                total_seconds, total_file_io_time / number_of_procs, total_search_time / number_of_procs,
+        printf("Total-Time: %.3fs\n"
+                        "\ttotal_setup_time: %.3fs\n"
+                        "\ttoral_reduce_time: %.3fs\n"
+                        "\taverage-io-time: %.3fs\n"
+                        "\taverage-search-time: %.3fs\n"
+                        "processes: %d\n"
+                        "chunksize: %lu Bytes\n",
+                total_seconds, total_setup_time, total_reduce_time,
+                total_file_io_time / number_of_procs, total_search_time / number_of_procs,
                 number_of_procs, chunk_size);
     }
 #endif

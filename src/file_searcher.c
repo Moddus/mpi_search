@@ -18,7 +18,6 @@
 
 extern float process_search_time;
 extern float process_file_io_time;
-extern float process_total_time;
 #endif
 
 static void
