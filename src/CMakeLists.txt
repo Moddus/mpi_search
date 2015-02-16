@@ -9,7 +9,8 @@ SET(source file_searcher.c
            mpi_functions.c
            file_util.c
            csv.c
-           ps_mpi.c )
+           ps_mpi.c
+           timeutil.c )
 
 ADD_EXECUTABLE( mpi_searcher
     main.c
@@ -38,7 +39,7 @@ ENDIF()
 
 add_custom_target(
     MPIRUN mpirun -n 4 ${EXECUTABLE_OUTPUT_PATH}/mpi_searcher -s 23.75.241.41 -f
-    ${CMAKE_SOURCE_DIR}/testfile -d
+    ${CMAKE_SOURCE_DIR}/testfile
     DEPENDS mpi_searcher
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT Run a search with 4 mpi machines
@@ -46,7 +47,7 @@ add_custom_target(
 
 add_custom_target(
     MPIRUN_CLION mpirun -n 4 ${CMAKE_CURRENT_BINARY_DIR}/mpi_searcher -s 23.75.241.41 -f
-    ${CMAKE_SOURCE_DIR}/testfile -d
+    ${CMAKE_SOURCE_DIR}/testfile
     DEPENDS mpi_searcher
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT Run a search with 4 mpi machines

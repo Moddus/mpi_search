@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/time.h>
 
 #include "regex.h"
 #include "file_searcher.h"
@@ -10,6 +11,15 @@
 #include "csv.h"
 
 #define START_RESULT_BUFFER_SIZE ( 50000 )
+
+#ifdef TIME_MEASUREMENT
+#include <sys/time.h>
+#include "timeutil.h"
+
+extern float process_search_time;
+extern float process_file_io_time;
+extern float process_total_time;
+#endif
 
 static void
 ps_file_searcher_task_debug(ps_searcher_t *searcher)
@@ -80,6 +90,11 @@ ps_file_searcher_search(ps_searcher_t* searcher,
     PS_MALLOC(*result, sizeof(char) * result_buffer_size);
     result_c = *result;
 
+#ifdef TIME_MEASUREMENT
+    struct timeval last_timestemp;
+    gettimeofday(&last_timestemp, NULL);
+#endif
+
     // open file
     FILE *file = fopen(searcher->task->path, "r");
     PS_CHECK_PTR_NULL(file, PS_ERROR_FAILED_TO_OPEN_FILE);
@@ -105,6 +120,10 @@ ps_file_searcher_search(ps_searcher_t* searcher,
     {
         char *search_start = NULL, *line_end = NULL;
         int line_end_found = FALSE;
+
+#ifdef TIME_MEASUREMENT
+        update_timestamp_and_total_seconds(&last_timestemp, &process_file_io_time);
+#endif
 
         processed_bytes = 0;
         buffer_fillsize += bytes_read;
@@ -163,7 +182,13 @@ ps_file_searcher_search(ps_searcher_t* searcher,
         }
 
         buffer_offset = processed_bytes;
+
+
         memmove(buffer, buffer + buffer_offset, buffer_fillsize);
+
+#ifdef TIME_MEASUREMENT
+        update_timestamp_and_total_seconds(&last_timestemp, &process_search_time);
+#endif
     }
 
     PS_CLOSE_FILE(file);

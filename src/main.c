@@ -3,16 +3,22 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <errno.h>
 #include <mpi.h>
+#include <sys/time.h>
 
 #include "util.h"
 #include "log.h"
 #include "mpi_functions.h"
-#include "file_searcher.h"
-#include "file_util.h"
 #include "ps_mpi.h"
 #include "csv.h"
+
+#ifdef TIME_MEASUREMENT
+#include "timeutil.h"
+
+extern float process_search_time;
+extern float process_file_io_time;
+extern float process_total_time;
+#endif
 
 int
 main(int argc, char *argv[])
@@ -30,6 +36,12 @@ main(int argc, char *argv[])
     char *result = NULL;
     size_t result_len = 0, total_result_len = 0, *all_result_len = NULL;
     int search_col = PS_CSV_ALL_COL;
+
+#ifdef TIME_MEASUREMENT
+    float total_seconds = 0, total_search_time = 0, total_file_io_time = 0;
+    struct timeval time_start;
+    gettimeofday(&time_start, NULL);
+#endif
 
     out_fd = stdout; /*For Logging*/
 
@@ -162,6 +174,23 @@ main(int argc, char *argv[])
     }
 
     log_debug("Process %d finished", own_rank);
+
+
+#ifdef TIME_MEASUREMENT
+    PS_MPI_CHECK_ERR(MPI_Reduce(&process_search_time, &total_search_time, 1, MPI_FLOAT, MPI_SUM, MASTER,
+            MPI_COMM_WORLD));
+    PS_MPI_CHECK_ERR(MPI_Reduce(&process_file_io_time , &total_file_io_time, 1, MPI_FLOAT, MPI_SUM, MASTER,
+            MPI_COMM_WORLD));
+
+    update_timestamp_and_total_seconds(&time_start, &total_seconds);
+    if(own_rank == MASTER)
+    {
+        printf("Total-Time: %.3fs, average-io-time: %.3fs , average-search-time: %.3fs , processes: %d, chunksize: "
+                        "%lu Bytes\n",
+                total_seconds, total_file_io_time / number_of_procs, total_search_time / number_of_procs,
+                number_of_procs, chunk_size);
+    }
+#endif
 
     MPI_Finalize();
 
