@@ -158,7 +158,10 @@ main(int argc, char *argv[])
     }
 
 #ifdef TIME_MEASUREMENT
-    gettimeofday(&current_time, NULL);
+    if(own_rank == MASTER)
+    {
+        gettimeofday(&current_time, NULL);
+    }
 #endif
 
     PS_MPI_CHECK_ERR(MPI_Gather(&result_len, 1, MPI_UNSIGNED_LONG, all_result_len, 1, MPI_UNSIGNED_LONG, MASTER,
@@ -201,7 +204,7 @@ main(int argc, char *argv[])
     {
         printf("Total-Time: %.3fs\n"
                         "\ttotal_setup_time: %.3fs\n"
-                        "\ttoral_reduce_time: %.3fs\n"
+                        "\ttotal_reduce_time: %.3fs\n"
                         "\taverage-io-time: %.3fs\n"
                         "\taverage-search-time: %.3fs\n"
                         "processes: %d\n"
