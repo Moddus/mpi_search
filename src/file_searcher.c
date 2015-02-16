@@ -13,7 +13,6 @@
 #define START_RESULT_BUFFER_SIZE ( 50000 )
 
 #ifdef TIME_MEASUREMENT
-#include <sys/time.h>
 #include "timeutil.h"
 
 extern float process_search_time;

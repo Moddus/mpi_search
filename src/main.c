@@ -194,6 +194,9 @@ main(int argc, char *argv[])
     {
         update_timestamp_and_total_seconds(&current_time, &total_reduce_time);
     }
+    printf("Process %d: process_search_time: %f, process_file_io_time: %f\n", own_rank
+        ,process_search_time, process_file_io_time);
+
     PS_MPI_CHECK_ERR(MPI_Reduce(&process_search_time, &total_search_time, 1, MPI_FLOAT, MPI_SUM, MASTER,
             MPI_COMM_WORLD));
     PS_MPI_CHECK_ERR(MPI_Reduce(&process_file_io_time , &total_file_io_time, 1, MPI_FLOAT, MPI_SUM, MASTER,
